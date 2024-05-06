@@ -351,14 +351,14 @@ function BCS:GetMHWeaponSkill()
 	local itemName, itemLink, itemRarity, itemLevel, itemMinLevel, itemType, itemSubType,
 	itemStackCount, itemEquipLoc, itemTexture, itemSellPrice = BCS:GetItemInfoForSlot("MainHandSlot")
 
-	return BCS:GetWeaponSkillForWeaponType(itemType) + 300
+	return BCS:GetWeaponSkillForWeaponType(itemType)
 end
 
 function BCS:GetOHWeaponSkill()
 	local itemName, itemLink, itemRarity, itemLevel, itemMinLevel, itemType, itemSubType,
 	itemStackCount, itemEquipLoc, itemTexture, itemSellPrice = BCS:GetItemInfoForSlot("SecondaryHandSlot")
 
-	return BCS:GetWeaponSkillForWeaponType(itemType) + 300
+	return BCS:GetWeaponSkillForWeaponType(itemType)
 end
 
 function BCS:GetMissChance(wepSkill)
@@ -716,7 +716,7 @@ function BCS:SetWeaponSkill(statFrame)
 	label:SetText(L.WEAPON_SKILL_COLON)
 
 	if OffhandHasWeapon() == 1 then
-		text:SetText(format("M  %d O   %d", BCS:GetMHWeaponSkill(), BCS:GetOHWeaponSkill()))
+		text:SetText(format("M %d | O %d", BCS:GetMHWeaponSkill(), BCS:GetOHWeaponSkill()))
 	else
 		text:SetText(format("%d", BCS:GetMHWeaponSkill()))
 	end
@@ -728,11 +728,11 @@ function BCS:SetMissChance(statFrame)
 	label:SetText(L.MISS_CHANCE_COLON)
 
 	if OffhandHasWeapon() == 1 then
-		text:SetText(format("M %d%% O  %d%%",
+		text:SetText(format("%.1f%% | %.1f%%",
 				BCS:GetDualWieldMissChance(BCS:GetMHWeaponSkill()),
 				BCS:GetDualWieldMissChance(BCS:GetOHWeaponSkill())))
 	else
-		text:SetText(format("%d%%", BCS:GetMissChance(BCS:GetMHWeaponSkill())))
+		text:SetText(format("%.1f%%", BCS:GetMissChance(BCS:GetMHWeaponSkill())))
 	end
 end
 
@@ -742,7 +742,7 @@ function BCS:SetGlanceChance(statFrame)
 	label:SetText(L.GLANCE_CHANCE_COLON)
 
 	if OffhandHasWeapon() == 1 then
-		text:SetText(format("M %d%% O  %d%%",
+		text:SetText(format("%d%% | %d%%",
 				BCS:GetGlanceChance(BCS:GetMHWeaponSkill()),
 				BCS:GetGlanceChance(BCS:GetOHWeaponSkill())))
 	else
@@ -755,11 +755,11 @@ function BCS:SetDodgeChance(statFrame)
 	local label = getglobal(statFrame:GetName() .. "Label")
 	label:SetText(L.DODGE_CHANCE_COLON)
 	if OffhandHasWeapon() == 1 then
-		text:SetText(format("M   %d%% O    %d%%",
+		text:SetText(format("%.1f%% | %.1f%%",
 				BCS:GetDodgeChance(BCS:GetMHWeaponSkill()),
 				BCS:GetDodgeChance(BCS:GetOHWeaponSkill())))
 	else
-		text:SetText(format("%d%%", BCS:GetDodgeChance(BCS:GetMHWeaponSkill())))
+		text:SetText(format("%.1f%%", BCS:GetDodgeChance(BCS:GetMHWeaponSkill())))
 	end
 end
 
@@ -769,11 +769,11 @@ function BCS:SetCritCap(statFrame)
 	label:SetText(L.CRIT_CAP_COLON)
 
 	if OffhandHasWeapon() == 1 then
-		text:SetText(format("M %d%% O  %d%%",
+		text:SetText(format("%.1f%% | %.1f%%",
 				BCS:GetDualWieldCritCap(BCS:GetMHWeaponSkill()),
 				BCS:GetDualWieldCritCap(BCS:GetOHWeaponSkill())))
 	else
-		text:SetText(format("%d%%", BCS:GetCritCap(BCS:GetMHWeaponSkill())))
+		text:SetText(format("%.1f%%", BCS:GetCritCap(BCS:GetMHWeaponSkill())))
 	end
 end
 
@@ -784,7 +784,7 @@ function BCS:SetBossCrit(statFrame)
 
 	local critChance = BCS:GetCritChance()
 	if OffhandHasWeapon() == 1 then
-		text:SetText(format("M %.1f%% O %.1f%%",
+		text:SetText(format("%.1f%% | %.1f%%",
 				math.min(critChance, BCS:GetDualWieldCritCap(BCS:GetMHWeaponSkill())),
 				math.min(critChance, BCS:GetDualWieldCritCap(BCS:GetOHWeaponSkill()))
 		))
