@@ -340,6 +340,10 @@ end
 
 function BCS:GetItemInfoForSlot(slot)
 	local _, _, id = string.find(GetInventoryItemLink("player", GetInventorySlotInfo(slot)) or "", "(item:%d+:%d+:%d+:%d+)");
+	if not id then
+		return
+	end
+
 	local itemName, itemLink, itemRarity, itemLevel, itemMinLevel, itemType, itemSubType,
 	itemStackCount, itemEquipLoc, itemTexture, itemSellPrice = GetItemInfo(id);
 
