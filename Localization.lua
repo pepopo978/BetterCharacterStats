@@ -162,11 +162,11 @@ BCS["L"] = {
 	BLOCK_COLON = BLOCK .. ":",
 
 	WEAPON_SKILL_COLON = "Wep Skill:",
-	MISS_CHANCE_COLON = "Miss Chance:",
-	DODGE_CHANCE_COLON = "Dodge Chance:",
-	GLANCE_CHANCE_COLON = "Glance Chance:",
+	MISS_CHANCE_COLON = "Miss %:",
+	DODGE_CHANCE_COLON = "Dodge %:",
+	GLANCE_CHANCE_COLON = "Glance %:",
 	CRIT_CAP_COLON = "Crit Cap:",
-	BOSS_CRIT_COLON = "Crit vs Boss:",
+	BOSS_CRIT_COLON = "Eff. Crit:",
 
 	SPELL_POWER_COLON = "Power:",
 
