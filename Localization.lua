@@ -166,7 +166,7 @@ BCS["L"] = {
 	DODGE_CHANCE_COLON = "Dodge Chance:",
 	GLANCE_CHANCE_COLON = "Glance Chance:",
 	CRIT_CAP_COLON = "Crit Cap:",
-	BOSS_CRIT_COLON = "Boss Crit:",
+	BOSS_CRIT_COLON = "Crit vs Boss:",
 
 	SPELL_POWER_COLON = "Power:",
 

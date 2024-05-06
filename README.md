@@ -3,7 +3,16 @@ BetterCharacterStats - a World of Warcraft (1.12.1) AddOn
 
 ![preview](https://raw.githubusercontent.com/yutsuku/BetterCharacterStats/gh-pages/images/BetterCharacterStats.png)
 
-Installation:
+# Pepo changes
+Added Melee vs Boss (lvl 63) section with:
+Weapon skill
+Miss chance
+Glance chance
+Dodge chance
+Crit Cap
+Effective Crit
+
+# Installation:
 
 Put "BetterCharacterStats" folder into ".../World of Warcraft/Interface/AddOns/".
 Create AddOns folder if necessary
