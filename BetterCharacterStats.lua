@@ -153,12 +153,12 @@ function BCS:UpdateStats()
 	--[[local timeUsed = debugprofilestop()-beginTime
 	table.insert(avgV, timeUsed)
 	avg = 0
-	
+
 	for i,v in ipairs(avgV) do
 		avg = avg + v
 	end
 	avg = avg / getn(avgV)
-	
+
 	BCS:Print(format("Average: %d (%d results), Exact: %d", avg, getn(avgV), timeUsed))]]
 end
 
@@ -297,154 +297,43 @@ function BCS:GetOffHandItemId()
 	return BCS:GetSlotItemId("SecondaryHandSlot")
 end
 
-function BCS:GetWeaponSkillForType(weaponType)
-	local wSkill = 0;
-
-	local gloves = BCS:GetGlovesItemId()
-	local mainhand = BCS:GetMainHandItemId()
-	local offhand = BCS:GetOffHandItemId()
-
-	if weaponType == "Daggers" then
-		--Edgemaster's Handguards  (+7)
-		--Circlet of Restless Dreams  (+6)
-		--Distracting Dagger (+6)
-		--Aged Core Leather Gloves (+5)
-		--Mugger's Belt Mugger's Belt (+5)
-		--Skilled Fighting Blade  (+4)
-		--Death's Sting (+3)
-
-		if gloves == 14551 then
-			wSkill = wSkill + 7
-		elseif gloves == 18823 then
-			wSkill = wSkill + 5
+function BCS:GetWeaponSkill(skillName)
+	-- loop through skills
+	local skillIndex = 1
+	while true do
+		local name, isHeader, isExpanded, skillRank, numTempPoints, skillModifier,
+		skillMaxRank, isAbandonable, stepCost, rankCost, minLevel, skillCostType,
+		skillDescription = GetSkillLineInfo(skillIndex)
+		if not skillName then
+			return 0
 		end
 
-		if BCS:GetHeadItemId() == 20623 then
-			wSkill = wSkill + 6
-		end
-
-		if BCS:GetWaistItemId() == 18505 then
-			wSkill = wSkill + 5
-		end
-
-		if mainhand == 18392 or offhand == 18392 then
-			wSkill = wSkill + 6
-		elseif mainhand == 12062 or offhand == 12062 then
-			wSkill = wSkill + 4
-		elseif mainhand == 21126 or offhand == 21126 then
-			wSkill = wSkill + 3
-		end
-	elseif weaponType == "One-Handed Swords" then
-		--Edgemaster's Handguards (+7)
-		--The Hungering Cold  (+6)
-		--Maladath, Runed Blade of the Black Flight  (+5)
-		--Anasterian's Legacy +4
-		--Crystal sword of the blossom +3
-		if gloves == 14551 then
-			wSkill = wSkill + 7
-		end
-
-		if mainhand == 23577 or offhand == 23577 then
-			wSkill = wSkill + 6
-		elseif mainhand == 19351 or offhand == 19351 then
-			wSkill = wSkill + 5
-		elseif mainhand == 61453 or offhand == 61453 then
-			wSkill = wSkill + 4
-		elseif mainhand == 61523 or offhand == 61523 then
-			wSkill = wSkill + 3
-		end
-	elseif weaponType == "Two-Handed Swords" then
-		--Obsidian Edged Blade Obsidian Edged Blade (+8)
-		if mainhand == 18822 then
-			wSkill = wSkill + 8
-		end
-	elseif weaponType == "One-Handed Axes" then
-		--Edgemaster's Handguards (+7)
-		--Expert Goldminer's Helmet  (+7)
-		--Zulian Hacker  (+2)
-
-		if gloves == 14551 then
-			wSkill = wSkill + 7
-		end
-
-		if BCS:GetHeadItemId() == 9375 then
-			wSkill = wSkill + 7
-		end
-
-		if mainhand == 19921 or offhand == 19921 then
-			wSkill = wSkill + 2
-		end
-	elseif weaponType == "Two-Handed Axes" then
-		--Huge Thorium Battleaxe Huge Thorium Battleaxe (+10)
-		--Dig Master's Pick +3
-		--Dwarven Tree Chopper Dwarven Tree Chopper (+2)
-		if mainhand == 12775 then
-			wSkill = wSkill + 10
-		elseif mainhand == 60552 then
-			wSkill = wSkill + 3
-		elseif mainhand == 2907 then
-			wSkill = wSkill + 2
-		end
-	elseif weaponType == "One-Handed Maces" then
-		--Fists of the Makers +5
-		--Anubisath Warhammer Anubisath Warhammer (+4)
-		--Wrench of Creation +3
-		--Sceptre of Smiting Sceptre of Smiting (+2)
-
-		if BCS:GetGlovesItemId() == 83485 then
-			wSkill = wSkill + 5
-		end
-
-		if mainhand == 21837 or offhand == 21837 then
-			wSkill = wSkill + 4
-		elseif mainhand == 60543 or offhand == 60543 then
-			wSkill = wSkill + 2
-		elseif mainhand == 19908 or offhand == 19908 then
-			wSkill = wSkill + 2
-		end
-	elseif weaponType == "Two-Handed Maces" then
-		--Ancient Jade Leggings +8
-		--Servomechanic Sledgehammer (+7)
-		--Chieftain's Ceremonial Headdress +7
-		--Grand Slammer +3
-		if BCS:GetLegsItemId() == 61239 then
-			wSkill = wSkill + 8
-		end
-
-		if BCS:GetHeadItemId() == 81223 then
-			wSkill = wSkill + 7
-		end
-
-		if mainhand == 4548 then
-			wSkill = wSkill + 7
-		elseif mainhand == 61532 then
-			wSkill = wSkill + 3
-		end
-	elseif weaponType == "Fist Weapons" then
-		--ashskin belt +5
-		--remnants of an old god +5
-		--ancient hakkari flayer +4
-		--devilsaur claws +4
-		--feralkin necklace +4
-
-		if BCS:GetWaistItemId() == 81265 then
-			wSkill = wSkill + 5
-		end
-
-		if BCS:GetNeckItemId() == 61512 then
-			wSkill = wSkill + 5
-		end
-
-		if mainhand == 60003 or offhand == 60003 then
-			wSkill = wSkill + 5
-		elseif mainhand == 81003 or offhand == 81003 then
-			wSkill = wSkill + 4
-		elseif mainhand == 20005 or offhand == 20005 then
-			wSkill = wSkill + 4
+		if name == skillName then
+			return skillRank + skillModifier
 		end
 	end
+end
 
-	return wSkill
+function BCS:GetWeaponSkillForWeaponType(weaponType)
+	if weaponType == "Daggers" then
+		return BCS:GetWeaponSkill("Daggers")
+	elseif weaponType == "One-Handed Swords" then
+		return BCS:GetWeaponSkill("Swords")
+	elseif weaponType == "Two-Handed Swords" then
+		return BCS:GetWeaponSkill("Two-Handed Swords")
+	elseif weaponType == "One-Handed Axes" then
+		return BCS:GetWeaponSkill("Axes")
+	elseif weaponType == "Two-Handed Axes" then
+		return BCS:GetWeaponSkill("Two-Handed Axes")
+	elseif weaponType == "One-Handed Maces" then
+		return BCS:GetWeaponSkill("Maces")
+	elseif weaponType == "Two-Handed Maces" then
+		return BCS:GetWeaponSkill("Two-Handed Maces")
+	elseif weaponType == "Fist Weapons" then
+		return BCS:GetWeaponSkill("Fist Weapons")
+	end
+
+	return 0
 end
 
 function BCS:GetItemInfoForSlot(slot)
@@ -460,14 +349,14 @@ function BCS:GetMHWeaponSkill()
 	local itemName, itemLink, itemRarity, itemLevel, itemMinLevel, itemType, itemSubType,
 	itemStackCount, itemEquipLoc, itemTexture, itemSellPrice = BCS:GetItemInfoForSlot("MainHandSlot")
 
-	return BCS:GetWeaponSkillForType(itemType) + 300
+	return BCS:GetWeaponSkillForWeaponType(itemType) + 300
 end
 
 function BCS:GetOHWeaponSkill()
 	local itemName, itemLink, itemRarity, itemLevel, itemMinLevel, itemType, itemSubType,
 	itemStackCount, itemEquipLoc, itemTexture, itemSellPrice = BCS:GetItemInfoForSlot("SecondaryHandSlot")
 
-	return BCS:GetWeaponSkillForType(itemType) + 300
+	return BCS:GetWeaponSkillForWeaponType(itemType) + 300
 end
 
 function BCS:GetMissChance(wepSkill)
@@ -898,7 +787,7 @@ function BCS:SetBossCrit(statFrame)
 				math.min(critChance, BCS:GetDualWieldCritCap(BCS:GetOHWeaponSkill()))
 		))
 	else
-		text:SetText(format("%.1f%%", math.min(critChance, BCS:GetDualWieldCritCap(BCS:GetMHWeaponSkill()))))
+		text:SetText(format("%.1f%%", math.min(critChance, BCS:GetCritCap(BCS:GetMHWeaponSkill()))))
 	end
 end
 
