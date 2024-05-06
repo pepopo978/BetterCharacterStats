@@ -5,12 +5,12 @@ BetterCharacterStats - a World of Warcraft (1.12.1) AddOn
 
 # Pepo changes
 Added Melee vs Boss (lvl 63) section with:
-Weapon skill
-Miss chance
-Glance chance
-Dodge chance
-Crit Cap
-Effective Crit
+- Weapon skill
+- Miss chance
+- Glance chance
+- Dodge chance
+- Crit Cap
+- Effective Crit vs boss
 
 # Installation:
 
