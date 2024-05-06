@@ -398,6 +398,13 @@ function BCS:GetGlanceChance(wepSkill)
 	return 10 + 15 * 2;
 end
 
+function BCS:GetGlanceReduction(wepSkill)
+	local diff = 315 - wepSkill;
+    local low = math.max(math.min(1.3 - 0.05 * diff, 0.91), 0.01);
+    local high = math.max(math.min(1.2 - 0.03 * diff, 0.99), 0.2);
+    return (high - low) / 2 + low;
+end
+
 function BCS:GetDodgeChance(wepSkill)
 	return math.max(5 + (315 - wepSkill) * 0.1, 0);
 end
@@ -736,17 +743,17 @@ function BCS:SetMissChance(statFrame)
 	end
 end
 
-function BCS:SetGlanceChance(statFrame)
+function BCS:SetGlanceReduction(statFrame)
 	local text = getglobal(statFrame:GetName() .. "StatText")
 	local label = getglobal(statFrame:GetName() .. "Label")
-	label:SetText(L.GLANCE_CHANCE_COLON)
+	label:SetText(L.GLANCE_REDUCTION_COLON)
 
 	if OffhandHasWeapon() == 1 then
 		text:SetText(format("%d%% | %d%%",
-				BCS:GetGlanceChance(BCS:GetMHWeaponSkill()),
-				BCS:GetGlanceChance(BCS:GetOHWeaponSkill())))
+				BCS:GetGlanceReduction(BCS:GetMHWeaponSkill()),
+				BCS:GetGlanceReduction(BCS:GetOHWeaponSkill())))
 	else
-		text:SetText(format("%d%%", BCS:GetGlanceChance(BCS:GetMHWeaponSkill())))
+		text:SetText(format("%d%%", BCS:GetGlanceReduction(BCS:GetMHWeaponSkill())))
 	end
 end
 
@@ -1114,8 +1121,8 @@ function BCS:UpdatePaperdollStats(prefix, index)
 	elseif (index == "PLAYERSTAT_MELEE_BOSS") then
 		BCS:SetWeaponSkill(stat1)
 		BCS:SetMissChance(stat2)
-		BCS:SetGlanceChance(stat3)
-		BCS:SetDodgeChance(stat4)
+		BCS:SetDodgeChance(stat3)
+		BCS:SetGlanceReduction(stat4)
 		BCS:SetCritCap(stat5)
 		BCS:SetBossCrit(stat6)
 	elseif (index == "PLAYERSTAT_RANGED_COMBAT") then
