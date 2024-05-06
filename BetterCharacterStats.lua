@@ -402,7 +402,7 @@ function BCS:GetGlanceReduction(wepSkill)
 	local diff = 315 - wepSkill;
     local low = math.max(math.min(1.3 - 0.05 * diff, 0.91), 0.01);
     local high = math.max(math.min(1.2 - 0.03 * diff, 0.99), 0.2);
-    return (high - low) / 2 + low;
+    return 100 * ((high - low) / 2 + low);
 end
 
 function BCS:GetDodgeChance(wepSkill)

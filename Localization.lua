@@ -164,7 +164,7 @@ BCS["L"] = {
 	WEAPON_SKILL_COLON = "Wep Skill:",
 	MISS_CHANCE_COLON = "Miss %:",
 	DODGE_CHANCE_COLON = "Dodge %:",
-	GLANCE_REDUCTION_COLON = "Glance Dmg %:",
+	GLANCE_REDUCTION_COLON = "Glance Dmg:",
 	CRIT_CAP_COLON = "Crit Cap:",
 	BOSS_CRIT_COLON = "Eff. Crit:",
 
