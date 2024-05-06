@@ -384,6 +384,7 @@ function BCS:GetWeaponSkillForType(weaponType)
 	elseif weaponType == "One-Handed Maces" then
 		--Fists of the Makers +5
 		--Anubisath Warhammer Anubisath Warhammer (+4)
+		--Wrench of Creation +3
 		--Sceptre of Smiting Sceptre of Smiting (+2)
 
 		if BCS:GetGlovesItemId() == 83485 then
@@ -392,6 +393,8 @@ function BCS:GetWeaponSkillForType(weaponType)
 
 		if mainhand == 21837 or offhand == 21837 then
 			wSkill = wSkill + 4
+		elseif mainhand == 60543 or offhand == 60543 then
+			wSkill = wSkill + 2
 		elseif mainhand == 19908 or offhand == 19908 then
 			wSkill = wSkill + 2
 		end
