@@ -7,7 +7,7 @@ BetterCharacterStats - a World of Warcraft (1.12.1) AddOn
 Added Melee vs Boss (lvl 63) section with:
 - Weapon skill
 - Miss chance
-- Glance chance
+- Glance reduction %
 - Dodge chance
 - Crit Cap
 - Effective Crit vs boss
