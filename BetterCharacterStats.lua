@@ -311,6 +311,8 @@ function BCS:GetWeaponSkill(skillName)
 		if name == skillName then
 			return skillRank + skillModifier
 		end
+
+		skillIndex = skillIndex + 1
 	end
 end
 
