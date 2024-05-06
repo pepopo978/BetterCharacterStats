@@ -4,6 +4,8 @@ BetterCharacterStats - a World of Warcraft (1.12.1) AddOn
 ![preview](https://raw.githubusercontent.com/yutsuku/BetterCharacterStats/gh-pages/images/BetterCharacterStats.png)
 
 # Pepo changes
+![image](https://github.com/pepopo978/BetterCharacterStats/assets/149287158/41726e24-4a60-433c-b8b6-9991fb4e814d)
+
 Added Melee vs Boss (lvl 63) section with:
 - Weapon skill
 - Miss chance
