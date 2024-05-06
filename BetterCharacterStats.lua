@@ -395,7 +395,7 @@ function BCS:GetDualWieldMissChance(wepSkill)
 end
 
 function BCS:GetGlanceChance(wepSkill)
-	return 10 + math.max(315 - wepSkill, 0) * 2;
+	return 10 + 15 * 2;
 end
 
 function BCS:GetDodgeChance(wepSkill)
