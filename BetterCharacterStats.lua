@@ -332,7 +332,7 @@ function BCS:GetWeaponSkillForWeaponType(weaponType)
 	elseif weaponType == "Two-Handed Maces" then
 		return BCS:GetWeaponSkill("Two-Handed Maces")
 	elseif weaponType == "Fist Weapons" then
-		return BCS:GetWeaponSkill("Fist Weapons")
+		return BCS:GetWeaponSkill("Unarmed")
 	end
 
 	return 0
