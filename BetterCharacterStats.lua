@@ -304,7 +304,7 @@ function BCS:GetWeaponSkill(skillName)
 		local name, isHeader, isExpanded, skillRank, numTempPoints, skillModifier,
 		skillMaxRank, isAbandonable, stepCost, rankCost, minLevel, skillCostType,
 		skillDescription = GetSkillLineInfo(skillIndex)
-		if not skillName then
+		if not name then
 			return 0
 		end
 
