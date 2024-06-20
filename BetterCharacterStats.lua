@@ -793,7 +793,7 @@ function BCS:SetBossCrit(statFrame)
 	local label = getglobal(statFrame:GetName() .. "Label")
 	label:SetText(L.BOSS_CRIT_COLON)
 
-	local critChance = BCS:GetCritChance()
+	local critChance = BCS:GetCritChance() - 3 -- 3 % crit reduction vs lvl 63
 	if OffhandHasWeapon() == 1 then
 		text:SetText(format("%.1f%% | %.1f%%",
 				math.min(critChance, BCS:GetDualWieldCritCap(BCS:GetMHWeaponSkill())),
