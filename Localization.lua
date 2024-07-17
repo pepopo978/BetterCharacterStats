@@ -110,6 +110,9 @@ BCS["L"] = {
 	Result of an attack made with 
 	melee or ranged weapons.]],
 
+	["MELEE_HIT_VS_BOSS_TOOLTIP"] = [[|cffffffffSpecial Miss|r
+	Special ability miss chance: |cffffffff%.1f%%|r]],
+
 	["SPELL_HIT_TOOLTIP"] = [[|cffffffffHit|r
 	Result of an attack made with 
 	spells.]],

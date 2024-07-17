@@ -365,37 +365,32 @@ function BCS:GetOHWeaponSkill()
 	return BCS:GetWeaponSkillForWeaponType(itemType)
 end
 
-function BCS:GetMissChance(wepSkill)
-	local diff = 315 - wepSkill;
+function BCS:GetMissChanceRaw(wepSkill)
+	local diff = wepSkill - 315
+	local miss = 5
 
-	if diff > 10 then
-		return 5 + diff * 0.2;
+	if diff < -10 then
+		miss = miss - diff * 0.2;
 	else
-		return 5 + diff * 0.1;
+		miss = miss - diff * 0.1;
 	end
+
+	local hitChance = BCS:GetHitRating()
+	-- if skill diff < -10 then subtract one from +hit, if there is any +hit
+	if (diff < -10) and (hitChance > 0) then
+		hitChance = hitChance - 1
+	end
+	miss = miss - hitChance
+
+	return miss
+end
+
+function BCS:GetMissChance(wepSkill)
+	return max(0, min(BCS:GetMissChanceRaw(wepSkill),60))
 end
 
 function BCS:GetDualWieldMissChance(wepSkill)
-	local diff = 315 - wepSkill;
-	local miss;
-
-	if diff > 10 then
-		miss = 5 + diff * 0.2;
-	else
-		miss = 5 + diff * 0.1;
-	end
-
-	miss = miss * 0.8 + 20;
-
-	local hitChance = BCS:GetHitRating()
-
-	if diff > 10 then
-		miss = miss - (hitChance - 1);
-	else
-		miss = miss - (hitChance);
-	end
-
-	return miss
+	return max(0,min(BCS:GetMissChanceRaw(wepSkill)+19,60))
 end
 
 function BCS:GetGlanceChance(wepSkill)
@@ -734,17 +729,31 @@ function BCS:SetWeaponSkill(statFrame)
 end
 
 function BCS:SetMissChance(statFrame)
+	local frame = statFrame
 	local text = getglobal(statFrame:GetName() .. "StatText")
 	local label = getglobal(statFrame:GetName() .. "Label")
 	label:SetText(L.MISS_CHANCE_COLON)
+
+	local mh_miss = BCS:GetMissChance(BCS:GetMHWeaponSkill())
 
 	if OffhandHasWeapon() == 1 then
 		text:SetText(format("%.1f%% | %.1f%%",
 				BCS:GetDualWieldMissChance(BCS:GetMHWeaponSkill()),
 				BCS:GetDualWieldMissChance(BCS:GetOHWeaponSkill())))
 	else
-		text:SetText(format("%.1f%%", BCS:GetMissChance(BCS:GetMHWeaponSkill())))
+		text:SetText(format("%.1f%%", mh_miss))
 	end
+
+	frame.tooltip = format(L.MELEE_HIT_VS_BOSS_TOOLTIP, mh_miss)
+
+	frame:SetScript("OnEnter", function()
+		GameTooltip:SetOwner(this, "ANCHOR_RIGHT")
+		GameTooltip:SetText(this.tooltip)
+		GameTooltip:Show()
+	end)
+	frame:SetScript("OnLeave", function()
+		GameTooltip:Hide()
+	end)
 end
 
 function BCS:SetGlanceReduction(statFrame)
