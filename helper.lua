@@ -885,6 +885,12 @@ function BCS:GetSpellPower(school)
 			damagePower = damagePower + tonumber(spellPowerFromAura)
 		end
 		
+		_, _, spellPowerFromAura = BCS:GetPlayerAura("Spell Damage increased by (%d+)")
+		if spellPowerFromAura then
+			spellPower = spellPower + tonumber(spellPowerFromAura)
+			damagePower = damagePower + tonumber(spellPowerFromAura)
+		end
+		
 		local secondaryPower = 0
 		local secondaryPowerName = ""
 		
