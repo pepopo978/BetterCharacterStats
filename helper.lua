@@ -708,7 +708,7 @@ function BCS:GetSpellPower(school)
 							spellPower = spellPower + tonumber(value)
 						end
 						_, _, value, value2 = strfind(left:GetText(), "Equip: Increases your spell damage by up to (%d+) and your healing by up to (%d+).")
-						if value and value2 then -- todo: what?
+						if value and value2 then
 							spellPower = spellPower + tonumber(value)
 							damagePower = damagePower + tonumber(value)
 						end
@@ -864,7 +864,6 @@ function BCS:GetSpellPower(school)
 		_, _, spellPowerFromAura = BCS:GetPlayerAura(L["Increases damage and healing done by magical spells and effects by up to (%d+)."])
 		if spellPowerFromAura then
 			spellPower = spellPower + tonumber(spellPowerFromAura)
-			-- damagePower = damagePower + tonumber(spellPowerFromAura)
 		end
 		
 		_, _, spellPowerFromAura = BCS:GetPlayerAura("Magical damage dealt by spells and abilities is increased by up to (%d+)")
@@ -930,9 +929,9 @@ function BCS:GetHealingPower()
 					if value then
 						healPower = healPower + tonumber(value)
 					end
-					_,_, value1,value2 = strfind(left:GetText(), "Equip: Increases your spell damage by up to (%d+) and your healing by up to (%d+).")
-					if value1 and value2 then
-						healPower = healPower + tonumber(value2)
+					_,_, value1,value = strfind(left:GetText(), "Equip: Increases your spell damage by up to (%d+) and your healing by up to (%d+).")
+					if value1 and value then
+						healPower = healPower + tonumber(value)
 					end
 					_,_, value = strfind(left:GetText(), L["Healing Spells %+(%d+)"])
 					if value then
