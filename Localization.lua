@@ -63,6 +63,7 @@ BCS["L"] = {
 	["/Hit %+(%d+)"] = "/Hit %+(%d+)",
 	["/Spell Hit %+(%d+)"] = "/Spell Hit %+(%d+)",
 	["^Mana Regen %+(%d+)"] = "^Mana Regen %+(%d+)",
+	["^Mana Regen %+(%d+)/.-/Healing Spells %+(%d+)"] = "^Mana Regen %+(%d+)/.-/Healing Spells %+(%d+)",
 	["^Healing %+%d+ and (%d+) mana per 5 sec."] = "^Healing %+%d+ and (%d+) mana per 5 sec.",
 	["^%+(%d+) Healing Spells"] = "^%+(%d+) Healing Spells",
 	["^%+(%d+) Spell Damage and Healing"] = "^%+(%d+) Spell Damage and Healing",
@@ -94,11 +95,16 @@ BCS["L"] = {
 	["Arcane spell critical hit chance increased by (%d+)%%.\r\nArcane spell critical hit damage increased by (%d+)%%."] = "Arcane spell critical hit chance increased by (%d+)%%.\r\nArcane spell critical hit damage increased by (%d+)%%.",
 	["Spell hit chance increased by (%d+)%%."] = "Spell hit chance increased by (%d+)%%.",
 
+	["Restores (%d+) mana per 5 seconds."] = "Restores (%d+) mana per 5 seconds.",
+	["Increases spell critical chance by (%d+)%%."] = "Increases spell critical chance by (%d+)%%.",
+	["Increases damage and healing done by magical spells and effects by up to (%d+)."] = "Increases damage and healing done by magical spells and effects by up to (%d+).",
+	["Increases healing done by magical spells and effects by up to (%d+)."] = "Increases healing done by magical spells and effects by up to (%d+).",
+	["Increases healing done."] = "Increases healing done.",
+
 	["Increases chance for a melee, ranged, or spell critical by (%d+)%% and all attributes by %d+."] = "Increases chance for a melee, ranged, or spell critical by (%d+)%% and all attributes by %d+.",
 	["Melee critical-hit chance reduced by (%d+)%%.\r\nSpell critical-hit chance reduced by (%d+)%%."] = "Melee critical-hit chance reduced by (%d+)%%.\r\nSpell critical-hit chance reduced by (%d+)%%.",
 	["Increases critical chance of spells by 10%%, melee and ranged by 5%% and grants 140 attack power. 120 minute duration."] = "Increases critical chance of spells by 10%%, melee and ranged by 5%% and grants 140 attack power. 120 minute duration.",
 	["Critical strike chance with spells and melee attacks increased by (%d+)%%."] = "Critical strike chance with spells and melee attacks increased by (%d+)%%.",
-
 
 	["MELEE_HIT_TOOLTIP"] = [[|cffffffffHit|r
 	Result of an attack made with 
@@ -173,5 +179,7 @@ BCS["L"] = {
 	SPELL_SCHOOL_HOLY = "Holy",
 	SPELL_SCHOOL_NATURE = "Nature",
 	SPELL_SCHOOL_SHADOW = "Shadow",
+
+	["Tree of Life Aura"] = "Tree of Life Aura",
 
 }
