@@ -543,23 +543,23 @@ function BCS:GetSpellCritChance()
 	-- school crit: most likely never
 	local Crit_Set_Bonus = {}
 	local spellCrit = 0;
-	local _, intelect = UnitStat("player", 4)
+	local _, intellect = UnitStat("player", 4)
 	local _, class = UnitClass("player")
 	
 	-- values from vmangos core
 	local playerLevel = UnitLevel("player")
 	if class == "MAGE" then
-		spellCrit = 3.7 + intelect / (14.77 + .65 * playerLevel)
+		spellCrit = 3.7 + intellect / (14.77 + .65 * playerLevel)
 	elseif class == "WARLOCK" then
-		spellCrit = 3.18 + intelect / (11.30 + .82 * playerLevel)
+		spellCrit = 3.18 + intellect / (11.30 + .82 * playerLevel)
 	elseif class == "PRIEST" then
-		spellCrit = 2.97 + intelect / (10.03 + .82 * playerLevel)
+		spellCrit = 2.97 + intellect / (10.03 + .82 * playerLevel)
 	elseif class == "DRUID" then
-		spellCrit = 3.33 + intelect / (12.41 + .79 * playerLevel)
+		spellCrit = 3.33 + intellect / (12.41 + .79 * playerLevel)
 	elseif class == "SHAMAN" then
-		spellCrit = 3.54 + intelect / (11.51 + .8 * playerLevel)
+		spellCrit = 3.54 + intellect / (11.51 + .8 * playerLevel)
 	elseif class == "PALADIN" then
-		spellCrit = 3.7 + intelect / (14.77 + .65 * playerLevel)
+		spellCrit = 3.7 + intellect / (14.77 + .65 * playerLevel)
 	end
 	
 	local MAX_INVENTORY_SLOTS = 19
