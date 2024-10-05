@@ -75,8 +75,10 @@ function BCS:GetHitRating(hitOnly)
 	hit_debuff = 0;
 	
 	for slot=0, MAX_INVENTORY_SLOTS do
-		local hasItem = BCS_Tooltip:SetInventoryItem("player", slot)
+		local hasItem = GetInventoryItemLink('player', slot)
 		if hasItem then
+			local _, _, eqItemLink = strfind(GetInventoryItemLink('player', slot), "(item:%d+:%d+:%d+:%d+)")
+			BCS_Tooltip:SetHyperlink(eqItemLink)
 			local MAX_LINES = BCS_Tooltip:NumLines()
 			local SET_NAME = nil
 			
@@ -277,9 +279,10 @@ function BCS:GetSpellHitRating()
 	-- scan gear
 	local MAX_INVENTORY_SLOTS = 19
 	for slot=0, MAX_INVENTORY_SLOTS do
-		local hasItem = BCS_Tooltip:SetInventoryItem("player", slot)
-		
+		local hasItem = GetInventoryItemLink('player', slot)
 		if hasItem then
+			local _, _, eqItemLink = strfind(GetInventoryItemLink('player', slot), "(item:%d+:%d+:%d+:%d+)")
+			BCS_Tooltip:SetHyperlink(eqItemLink)
 			local SET_NAME
 			local MAX_LINES = BCS_Tooltip:NumLines()
 			
@@ -565,9 +568,10 @@ function BCS:GetSpellCritChance()
 	local MAX_INVENTORY_SLOTS = 19
 	
 	for slot=0, MAX_INVENTORY_SLOTS do
-		local hasItem = BCS_Tooltip:SetInventoryItem("player", slot)
-		
+		local hasItem = GetInventoryItemLink('player', slot)
 		if hasItem then
+			local _, _, eqItemLink = strfind(GetInventoryItemLink('player', slot), "(item:%d+:%d+:%d+:%d+)")
+			BCS_Tooltip:SetHyperlink(eqItemLink)
 			local SET_NAME = nil
 			
 			for line=1, BCS_Tooltip:NumLines() do
@@ -695,9 +699,10 @@ function BCS:GetSpellPower(school)
 		
 		-- scan gear
 		for slot=0, MAX_INVENTORY_SLOTS do
-			local hasItem = BCS_Tooltip:SetInventoryItem("player", slot)
-			
+			local hasItem = GetInventoryItemLink('player', slot)
 			if hasItem then
+				local _, _, eqItemLink = strfind(GetInventoryItemLink('player', slot), "(item:%d+:%d+:%d+:%d+)")
+				BCS_Tooltip:SetHyperlink(eqItemLink)
 				local SET_NAME
 				
 				for line=1, BCS_Tooltip:NumLines() do
@@ -923,9 +928,10 @@ function BCS:GetHealingPower()
 	local MAX_INVENTORY_SLOTS = 19
 	
 	for slot=0, MAX_INVENTORY_SLOTS do
-		local hasItem = BCS_Tooltip:SetInventoryItem("player", slot)
-		
+		local hasItem = GetInventoryItemLink('player', slot)
 		if hasItem then
+			local _, _, eqItemLink = strfind(GetInventoryItemLink('player', slot), "(item:%d+:%d+:%d+:%d+)")
+			BCS_Tooltip:SetHyperlink(eqItemLink)
 			local SET_NAME
 			
 			for line=1, BCS_Tooltip:NumLines() do
@@ -1048,9 +1054,10 @@ function BCS:GetManaRegen()
 	local MAX_INVENTORY_SLOTS = 19
 	
 	for slot=0, MAX_INVENTORY_SLOTS do
-		local hasItem = BCS_Tooltip:SetInventoryItem("player", slot)
-		
+		local hasItem = GetInventoryItemLink('player', slot)
 		if hasItem then
+			local _, _, eqItemLink = strfind(GetInventoryItemLink('player', slot), "(item:%d+:%d+:%d+:%d+)")
+			BCS_Tooltip:SetHyperlink(eqItemLink)
 			local SET_NAME
 
 			for line=1, BCS_Tooltip:NumLines() do
