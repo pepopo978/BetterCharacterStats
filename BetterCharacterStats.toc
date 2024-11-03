@@ -1,7 +1,7 @@
 ## Interface: 11200
 ## Title: BetterCharacterStats
-## Author: moh, Bennylava, |cffbe5effLexie|r
-## Version: 1.12.5
+## Author: moh, Bennylava, |cffbe5effLexie|r, Spit, Pepopo
+## Version: 1.12.6
 ## SavedVariablesPerCharacter: BCSConfig bcsupdateavailable BCScache
 
 BetterCharacterStats.xml

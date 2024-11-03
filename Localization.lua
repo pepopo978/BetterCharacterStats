@@ -100,7 +100,33 @@ BCS["L"] = {
 	["Melee critical-hit chance reduced by (%d+)%%.\r\nSpell critical-hit chance reduced by (%d+)%%."] = "Melee critical-hit chance reduced by (%d+)%%.\r\nSpell critical-hit chance reduced by (%d+)%%.",
 	["Increases critical chance of spells by 10%%, melee and ranged by 5%% and grants 140 attack power. 120 minute duration."] = "Increases critical chance of spells by 10%%, melee and ranged by 5%% and grants 140 attack power. 120 minute duration.",
 	["Critical strike chance with spells and melee attacks increased by (%d+)%%."] = "Critical strike chance with spells and melee attacks increased by (%d+)%%.",
-
+	["Increases ranged and melee critical chance by (%d+)%%."] = "Increases ranged and melee critical chance by (%d+)%%.",
+	["Equip: Increases the critical chance provided by Leader of the Pack and Moonkin Aura by (%d)%%."] = "Equip: Increases the critical chance provided by Leader of the Pack and Moonkin Aura by (%d)%%.",
+	-- druid
+	["Increases the damage and critical strike chance of your Moonfire spell by (%d+)%%."] = "Increases the damage and critical strike chance of your Moonfire spell by (%d+)%%.",
+	["Increases the critical effect chance of your Regrowth spell by (%d+)%%."] = "Increases the critical effect chance of your Regrowth spell by (%d+)%%.",
+	-- paladin
+	["Increases the critical effect chance of your Holy spells by (%d+)%%."] = "Increases the critical effect chance of your Holy spells by (%d+)%%.", -- same for priest
+	["When activated, gives your next Flash of Light, Holy Light or Holy Shock spell a (%d+)%% critical effect chance."] = "When activated, gives your next Flash of Light, Holy Light or Holy Shock spell a (%d+)%% critical effect chance.",
+	-- shaman
+	["Increases the critical strike chance of your Lightning Bolt and Chain Lightning spells by an additional (%d+)%%."] = "Increases the critical strike chance of your Lightning Bolt and Chain Lightning spells by an additional (%d+)%%.",
+	["Increases the critical effect chance of your healing and lightning spells by (%d+)%%."] = "Increases the critical effect chance of your healing and lightning spells by (%d+)%%.",
+	-- warlock
+	["Increases the critical strike chance of your Destruction spells by (%d+)%%."] = "Increases the critical strike chance of your Destruction spells by (%d+)%%.",
+	["Increases the critical strike chance of your Searing Pain spell by (%d+)%%."] = "Increases the critical strike chance of your Searing Pain spell by (%d+)%%.",
+	["Reduces the chance for enemies to resist your Affliction spells by (%d+)%%."] = "Reduces the chance for enemies to resist your Affliction spells by (%d+)%%.",
+	-- mage
+	["Increases the critical strike chance of your Arcane Explosion and Arcane Missiles spells by an additional (%d+)%%."] = "Increases the critical strike chance of your Arcane Explosion and Arcane Missiles spells by an additional (%d+)%%.",
+	["Increases the critical strike chance of your Fire Blast and Scorch spells by (%d+)%%."] = "Increases the critical strike chance of your Fire Blast and Scorch spells by (%d+)%%.",
+	["Increases the critical strike chance of your Flamestrike spell by (%d+)%%."] = "Increases the critical strike chance of your Flamestrike spell by (%d+)%%.",
+	["Increases the critical strike chance of your Fire spells by (%d+)%%."] = "Increases the critical strike chance of your Fire spells by (%d+)%%.",
+	["Increases the critical strike chance of all your spells against frozen targets by (%d+)%%."] = "Increases the critical strike chance of all your spells against frozen targets by (%d+)%%.",
+	["Increases your spell damage and critical srike chance by (%d+)%%."] = "Increases your spell damage and critical srike chance by (%d+)%%.",
+	["Increases critical strike chance from Fire damage spells by (%d+)%%."] = "Increases critical strike chance from Fire damage spells by (%d+)%%.",
+	-- priest
+	["Increases your spell damage by %d+%% and the critical strike chance of your offensive spells by (%d)%%."] = "Increases your spell damage by %d+%% and the critical strike chance of your offensive spells by (%d)%%.",
+	["^Set: Improves your chance to get a critical strike with Holy spells by (%d)%%."] = "^Set: Improves your chance to get a critical strike with Holy spells by (%d)%%.",
+	["^Set: Increases your chance of a critical hit with Prayer of Healing by (%d+)%%."] = "^Set: Increases your chance of a critical hit with Prayer of Healing by (%d+)%%.",
 	--defense
 	["DEFENSE_TOOLTIP"] = [[|cffffffffDefense Skill|r]],
 	["DEFENSE_TOOLTIP_SUB"] = [[Higher defense makes you harder to hit and makes monsters less likely to land a crushing blow.]],
@@ -150,7 +176,7 @@ BCS["L"] = {
 
 	--spells
 	["SPELL_HIT_TOOLTIP"] = [[|cffffffffSpell Hit|r]],
-	["SPELL_HIT_SECONDARY_TOOLTIP"] = [[|cffffffffSpell Hit%d%% (%d%%|cff20ff20+%d%% %s|r|cffffffff)|rIncreases chance to land a spell.]],
+	["SPELL_HIT_SECONDARY_TOOLTIP"] = [[|cffffffffSpell Hit (%d%%|cff20ff20+%d%% %s|r|cffffffff)|r]],
 	["SPELL_HIT_TOOLTIP_SUB"] = [[Increases chance to land a harmful spell.]],
 
 	["SPELL_CRIT_TOOLTIP"] = [[|cffffffffSpell Crit|r]],
@@ -161,7 +187,8 @@ BCS["L"] = {
 	["SPELL_POWER_SECONDARY_TOOLTIP"] = [[|cffffffffSpell Power %d (%d|cff20ff20+%d %s|r|cffffffff)|r]],
 	["SPELL_POWER_SECONDARY_TOOLTIP_SUB"] = [[Increases damage done by spells and effects.]],
 
-	["SPELL_SCHOOL_TOOLTIP"] = [[|cffffffff%s Spell Power|r]],
+	["SPELL_SCHOOL_TOOLTIP"] = [[|cffffffff%s Spell Power %s|r]],
+	["SPELL_SCHOOL_SECONDARY_TOOLTIP"] = [[|cffffffff%s Spell Power %d (%d|cff20ff20+%d|r|cffffffff)|r]],
 	["SPELL_SCHOOL_TOOLTIP_SUB"] = [[Increases damage done by %s spells and effects.]],
 
 	["SPELL_HEALING_POWER_TOOLTIP"] = [[|cffffffffHealing Power %d|r]],
@@ -171,10 +198,10 @@ BCS["L"] = {
 	["SPELL_MANA_REGEN_TOOLTIP"] = [[|cffffffffMana regen: %d |cffffffff(%d)|r]],
 	["SPELL_MANA_REGEN_TOOLTIP_SUB"] = [[Mana regen when not casting and (while casting).
 	Mana regenerates every 2 seconds and the amount is dependent on your total spirit and MP5.
-	Spirit Regen: |cffffffff%d|r
-	Regen while casting: |cffffffff%d%%|r
-	MP5 Regen: |cffffffff%d|r
-	MP5 Regen (2s): |cffffffff%d|r]],
+	Spirit Regen: %d
+	Regen while casting: %d%%
+	MP5 Regen: %d
+	MP5 Regen (2s): %d]],
 
 	PLAYERSTAT_BASE_STATS = "Base Stats",
 	PLAYERSTAT_DEFENSES = "Defenses",

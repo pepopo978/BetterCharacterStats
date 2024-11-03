@@ -351,9 +351,16 @@ function BCS:GetSpellHitRating()
 						end
 						-- Paladin & Shaman
 						-- Precision & Nature's Guidance
-						_,_, value = strfind(left:GetText(), "Increases your chance to hit with melee weapons and spells by (%d+)%%.")
+						_,_, value = strfind(left:GetText(), "Increases your chance to hit with melee attacks and spells by (%d+)%%.")
 						if value and rank > 0 then
 							BCScache["talents"].spell_hit = BCScache["talents"].spell_hit + tonumber(value)
+							break
+						end
+						-- Warlock
+						-- Suppression
+						_,_, value = strfind(left:GetText(), L["Reduces the chance for enemies to resist your Affliction spells by (%d+)%%."])
+						if value and rank > 0 then
+							BCScache["talents"].spell_hit_shadow = BCScache["talents"].spell_hit_shadow + tonumber(value)
 							break
 						end
 					end
@@ -377,7 +384,7 @@ function BCS:GetSpellHitRating()
 	return hit, hit_fire, hit_frost, hit_arcane, hit_shadow
 end
 
-function BCS:GetCritChance() -- so easy lol, wish i could say same about other stuff
+function BCS:GetCritChance()
 	local crit = 0
 	--scan spellbook
 	for tab=1, GetNumSpellTabs() do
@@ -494,6 +501,29 @@ function BCS:GetRangedCritChance()
 		if critFromAura then
 			BCScache["auras"].ranged_crit = BCScache["auras"].ranged_crit + tonumber(critFromAura)
 		end
+		--leader of the pack
+		_, _, critFromAura = BCS:GetPlayerAura(L["Increases ranged and melee critical chance by (%d+)%%."])
+		if critFromAura then
+			BCScache["auras"].ranged_crit = BCScache["auras"].ranged_crit + tonumber(critFromAura)
+			--check if druid is shapeshifted and have Idol of the Moonfang equipped
+			for i=1, GetNumPartyMembers() do
+				local _, partyClass = UnitClass("party"..i)
+				if partyClass == "DRUID" then
+					if BCS_Tooltip:SetInventoryItem("party"..i, 18) and UnitCreatureType("party"..i) == "Beast" then
+						for line=1, BCS_Tooltip:NumLines() do
+							local left = getglobal(BCS_Prefix .. "TextLeft" .. line)
+							if left:GetText() then
+								_, _, critFromAura = strfind(left:GetText(), L["Equip: Increases the critical chance provided by Leader of the Pack and Moonkin Aura by (%d)%%."])
+								if critFromAura  then
+									BCScache["auras"].ranged_crit = BCScache["auras"].ranged_crit + tonumber(critFromAura)
+									break
+								end
+							end
+						end
+					end
+				end
+			end
+		end
 	end
 	if class == "MAGE" then crit = crit + 3.2
 	elseif class == "PRIEST" then crit = crit + 3
@@ -504,7 +534,6 @@ function BCS:GetRangedCritChance()
 end
 
 function BCS:GetSpellCritChance()
-	-- school crit: most likely never
 	local Crit_Set_Bonus = {}
 	local spellCrit = 0;
 	local _, intellect = UnitStat("player", 4)
@@ -570,6 +599,40 @@ function BCS:GetSpellCritChance()
 		_, _, critFromAura = BCS:GetPlayerAura("(Moonkin Aura)")
 		if critFromAura then
 			BCScache["auras"].spell_crit = BCScache["auras"].spell_crit + 3
+			if BCS:GetPlayerAura("Moonkin Form") and BCS_Tooltip:SetInventoryItem("player", 18) then
+				for line=1, BCS_Tooltip:NumLines() do
+					local left = getglobal(BCS_Prefix .. "TextLeft" .. line)
+					if left:GetText() then
+						_, _, critFromAura = strfind(left:GetText(), L["Equip: Increases the critical chance provided by Leader of the Pack and Moonkin Aura by (%d)%%."])
+						if critFromAura  then
+							BCScache["auras"].spell_crit = BCScache["auras"].spell_crit + tonumber(critFromAura)
+						end
+					end
+				end
+			else
+				--check if druid is shapeshifted and have Idol of the Moonfang equipped
+				for i=1, GetNumPartyMembers() do
+					local _, partyClass = UnitClass("party"..i)
+					if partyClass == "DRUID" then
+						if BCS_Tooltip:SetInventoryItem("party"..i, 18) then
+							for line=1, BCS_Tooltip:NumLines() do
+								local left = getglobal(BCS_Prefix .. "TextLeft" .. line)
+								if left:GetText() then
+									_, _, critFromAura = strfind(left:GetText(), L["Equip: Increases the critical chance provided by Leader of the Pack and Moonkin Aura by (%d)%%."])
+									if critFromAura  then
+										for buff = 1, 32 do
+											if UnitBuff("party"..i, buff) and UnitBuff("party"..i, buff) == "Interface\\Icons\\Spell_Nature_ForceOfNature" then
+												BCScache["auras"].spell_crit = BCScache["auras"].spell_crit + tonumber(critFromAura)
+												break
+											end
+										end
+									end
+								end
+							end
+						end
+					end
+				end
+			end
 		end
 		_, _, critFromAura = BCS:GetPlayerAura("Power of the Guardian Crit")
 		if critFromAura then
@@ -602,9 +665,437 @@ function BCS:GetSpellCritChance()
 		end
 	end
 
-	spellCrit = spellCrit + BCScache["gear"].spell_crit + BCScache["auras"].spell_crit
+	-- scan talents
+	if BCS.needScanTalents then
+		BCScache["talents"].spell_crit = 0
+		for tab=1, GetNumTalentTabs() do
+			for talent=1, GetNumTalents(tab) do
+				BCS_Tooltip:SetTalent(tab, talent)
+				for line=1, BCS_Tooltip:NumLines() do
+					local left = getglobal(BCS_Prefix .. "TextLeft" .. line)
+					if left:GetText() then
+						local name, iconTexture, tier, column, rank, maxRank, isExceptional, meetsPrereq = GetTalentInfo(tab, talent)
+						-- Arcane Instability
+						local _,_, value = strfind(left:GetText(), L["Increases your spell damage and critical srike chance by (%d+)%%."])
+						if value and rank > 0 then
+							BCScache["talents"].spell_crit = BCScache["talents"].spell_crit + tonumber(value)
+							break
+						end
+					end
+				end
+			end
+		end
+	end
+
+	spellCrit = spellCrit + BCScache["talents"].spell_crit + BCScache["gear"].spell_crit + BCScache["auras"].spell_crit
 
 	return spellCrit
+end
+
+function BCS:GetSpellCritFromClass(class)
+	if not class then return 0, 0, 0, 0, 0, 0 end
+	--[[
+	Warlock: 
+		Devastation: + 1/2/3/4/5 %
+			Shadowbolt
+			Immolate
+			Searing Pain
+			Soulfire
+			Hellfire ?
+			Rain of Fire ?
+			Shadowburn
+			is there more?
+		Improved Searing Pain: + 2/4/6/8/10 %
+			Searing Pain
+	Mage:
+		Arcane Impact: + 2/4/6 %
+			Arcane Explosion
+			Arcane Missiles
+		Incinerate: + 2/4 % -?
+			Fireblast
+			Scorch
+		Improved Flamestrike: + 5/10/15 %
+			Flamestrike
+		Critical Mass: + 2/4/6 %
+			Fireball
+			Fireblast
+			Scorch
+			Flamestrike
+			Pyroblast
+			Blast Wave
+		Combustion:
+			+10% +20% +30% fire spell crit and so on untill 3 fire spell crits; DOES have stacks;
+		Shatter:
+		"Increases the critical strike chance of all your spells against frozen targets by (%d+)%%."
+			+ to all spells agains FROZEN target
+	Paladin: 
+		Holy power: + 1/2/3/4/5 %
+			Holy Light
+			Flash of Light
+			Holy Shock
+			Lay on Hands ?
+		Divine Favor: 100% while active
+			Holy Light
+			Flash of Light
+			Holy Shock
+	Druid:
+		Improved Moonfire: + 2/4/6/8/10 %
+			Moonfire
+		Improved Regrowth: + 10/20/30/40/50 %
+			Regrowth
+	Shaman:
+		Call of Thunder: + 1/2/4/6 % ?
+			Lightning Bolt
+			Chain Lightning
+		Tidal Mastery: + 1/2/3/4/5 %
+			Lightning Bolt
+			Chain Lightning
+			Lesser Healing Wave
+			Healing Wave
+			Chain Heal
+			Lightning shield 
+			Stormstrike ?
+		(baseline?) Elemental Mastery: 100% while active (fire, frost, nature damage spells)
+			Lightning Bolt
+			Chain Lightning
+			Earth Shock
+			Flame Shock
+			Frost Shock
+			Fire Nova
+	Priest:
+		Force of Will: + 1/2/3/4/5 %
+			Smite
+			Holy Fire
+			Mind Blast
+			Pain Spike
+			Mana Burn
+			Holy Nova
+		Holy Specialization: + 1/2/3/4/5 %
+			Lesser Heal
+			Heal
+			Flash Heal
+			Greater Heal
+			Prayer of Healing
+			Smite
+			Desperate Prayer
+	]]
+	if class == "PALADIN" then
+		--scan talents
+		if BCS.needScanTalents or BCS.needScanAuras then
+			BCScache["talents"].paladin_holy_spells = 0
+			BCScache["talents"].paladin_holy_light = 0
+			BCScache["talents"].paladin_flash = 0
+			BCScache["talents"].paladin_shock = 0
+			for tab=1, GetNumTalentTabs() do
+				for talent=1, GetNumTalents(tab) do
+					BCS_Tooltip:SetTalent(tab, talent)
+					for line=1, BCS_Tooltip:NumLines() do
+						local left = getglobal(BCS_Prefix .. "TextLeft" .. line)
+						if left:GetText() then
+							local name, iconTexture, tier, column, rank, maxRank, isExceptional, meetsPrereq = GetTalentInfo(tab, talent)
+							-- Holy Power
+							local _,_, value = strfind(left:GetText(), L["Increases the critical effect chance of your Holy spells by (%d+)%%."])
+							if value and rank > 0 then
+								BCScache["talents"].paladin_holy_spells = BCScache["talents"].paladin_holy_spells + tonumber(value)
+								break
+							end
+						end
+					end
+				end
+			end
+		end
+		if BCS.needScanAuras then
+			BCScache["talents"].paladin_holy_light = 0
+			BCScache["talents"].paladin_flash = 0
+			BCScache["talents"].paladin_shock = 0
+			-- Buffs
+			-- Divine Favor
+			if BCS:GetPlayerAura("Divine Favor") then
+				BCScache["talents"].paladin_holy_light = 100
+				BCScache["talents"].paladin_flash = 100
+				BCScache["talents"].paladin_shock = 100
+			end
+		end
+		return BCScache["talents"].paladin_holy_spells,
+			BCScache["talents"].paladin_holy_light,
+			BCScache["talents"].paladin_flash,
+			BCScache["talents"].paladin_shock, 0, 0
+	elseif class == "DRUID" then
+		--scan talents
+		if BCS.needScanTalents then
+			BCScache["talents"].druid_moonfire = 0
+			BCScache["talents"].druid_regrowth = 0
+			-- scan talents
+			for tab=1, GetNumTalentTabs() do
+				for talent=1, GetNumTalents(tab) do
+					BCS_Tooltip:SetTalent(tab, talent)
+					for line=1, BCS_Tooltip:NumLines() do
+						local left = getglobal(BCS_Prefix .. "TextLeft" .. line)
+						if left:GetText() then
+							local name, iconTexture, tier, column, rank, maxRank, isExceptional, meetsPrereq = GetTalentInfo(tab, talent)
+							-- Improved Moonfire
+							local _,_, value = strfind(left:GetText(), L["Increases the damage and critical strike chance of your Moonfire spell by (%d+)%%."])
+							if value and rank > 0 then
+								BCScache["talents"].druid_moonfire = BCScache["talents"].druid_moonfire + tonumber(value)
+								break
+							end
+							-- Improved Regrowth
+							_,_, value = strfind(left:GetText(), L["Increases the critical effect chance of your Regrowth spell by (%d+)%%."])
+							if value and rank > 0 then
+								BCScache["talents"].druid_regrowth = BCScache["talents"].druid_regrowth + tonumber(value)
+								break
+							end
+						end
+					end
+				end
+			end
+		end
+
+		return BCScache["talents"].druid_moonfire,
+			BCScache["talents"].druid_regrowth, 0, 0, 0, 0
+	elseif class == "WARLOCK" then
+		--scan talents
+		if BCS.needScanTalents then
+			BCScache["talents"].warlock_destruction_spells = 0
+			BCScache["talents"].warlock_searing_pain = 0
+			-- scan talents
+			for tab=1, GetNumTalentTabs() do
+				for talent=1, GetNumTalents(tab) do
+					BCS_Tooltip:SetTalent(tab, talent)
+					for line=1, BCS_Tooltip:NumLines() do
+						local left = getglobal(BCS_Prefix .. "TextLeft" .. line)
+						if left:GetText() then
+							local name, iconTexture, tier, column, rank, maxRank, isExceptional, meetsPrereq = GetTalentInfo(tab, talent)
+							-- Devastation
+							local _,_, value = strfind(left:GetText(), L["Increases the critical strike chance of your Destruction spells by (%d+)%%."])
+							if value and rank > 0 then
+								BCScache["talents"].warlock_destruction_spells = BCScache["talents"].warlock_destruction_spells + tonumber(value)
+								BCScache["talents"].warlock_searing_pain = BCScache["talents"].warlock_searing_pain + tonumber(value)
+								break
+							end
+							-- Improved Searing Pain
+							_,_, value = strfind(left:GetText(), L["Increases the critical strike chance of your Searing Pain spell by (%d+)%%."])
+							if value and rank > 0 then
+								BCScache["talents"].warlock_searing_pain = BCScache["talents"].warlock_searing_pain + tonumber(value)
+								break
+							end
+						end
+					end
+				end
+			end
+		end
+
+		return BCScache["talents"].warlock_destruction_spells,
+			BCScache["talents"].warlock_searing_pain, 0, 0, 0, 0
+	elseif class == "MAGE" then
+		--scan talents
+		if BCS.needScanTalents or BCS.needScanAuras then
+			BCScache["talents"].mage_arcane_spells = 0
+			BCScache["talents"].mage_fire_spells = 0
+			BCScache["talents"].mage_fireblast = 0
+			BCScache["talents"].mage_scorch = 0
+			BCScache["talents"].mage_flamestrike = 0
+			BCScache["talents"].mage_shatter = 0
+			-- scan talents
+			for tab=1, GetNumTalentTabs() do
+				for talent=1, GetNumTalents(tab) do
+					BCS_Tooltip:SetTalent(tab, talent)
+					for line=1, BCS_Tooltip:NumLines() do
+						local left = getglobal(BCS_Prefix .. "TextLeft" .. line)
+						if left:GetText() then
+							local name, iconTexture, tier, column, rank, maxRank, isExceptional, meetsPrereq = GetTalentInfo(tab, talent)
+							-- Arcane Impact
+							local _,_, value = strfind(left:GetText(), L["Increases the critical strike chance of your Arcane Explosion and Arcane Missiles spells by an additional (%d+)%%."])
+							if value and rank > 0 then
+								BCScache["talents"].mage_arcane_spells = BCScache["talents"].mage_arcane_spells + tonumber(value)
+								break
+							end
+							-- Incinerate
+							_,_, value = strfind(left:GetText(), L["Increases the critical strike chance of your Fire Blast and Scorch spells by (%d+)%%."])
+							if value and rank > 0 then
+								BCScache["talents"].mage_fireblast = BCScache["talents"].mage_fireblast + tonumber(value)
+								BCScache["talents"].mage_scorch = BCScache["talents"].mage_scorch + tonumber(value)
+								break
+							end
+							-- Improved Flamestrike
+							_,_, value = strfind(left:GetText(), L["Increases the critical strike chance of your Flamestrike spell by (%d+)%%."])
+							if value and rank > 0 then
+								BCScache["talents"].mage_flamestrike = BCScache["talents"].mage_flamestrike + tonumber(value)
+								break
+							end
+							-- Critical Mass
+							_,_, value = strfind(left:GetText(), L["Increases the critical strike chance of your Fire spells by (%d+)%%."])
+							if value and rank > 0 then
+								BCScache["talents"].mage_fire_spells = BCScache["talents"].mage_fire_spells + tonumber(value)
+								BCScache["talents"].mage_fireblast = BCScache["talents"].mage_fireblast + tonumber(value)
+								BCScache["talents"].mage_flamestrike = BCScache["talents"].mage_flamestrike + tonumber(value)
+								BCScache["talents"].mage_scorch = BCScache["talents"].mage_scorch + tonumber(value)
+								break
+							end
+							-- Shatter
+							_,_, value = strfind(left:GetText(), L["Increases the critical strike chance of all your spells against frozen targets by (%d+)%%."])
+							if value and rank > 0 then
+								BCScache["talents"].mage_shatter = BCScache["talents"].mage_shatter + tonumber(value)
+								break
+							end
+						end
+					end
+				end
+			end
+			-- Buffs
+			local _, _, value = BCS:GetPlayerAura(L["Increases critical strike chance from Fire damage spells by (%d+)%%."])
+			-- Combustion
+			if value then
+				BCScache["talents"].mage_fire_spells = BCScache["talents"].mage_fire_spells + value
+				BCScache["talents"].mage_fireblast = BCScache["talents"].mage_fireblast + value
+				BCScache["talents"].mage_flamestrike = BCScache["talents"].mage_flamestrike + value
+				BCScache["talents"].mage_scorch = BCScache["talents"].mage_scorch + value
+			end
+		end
+		return BCScache["talents"].mage_arcane_spells,
+			BCScache["talents"].mage_fire_spells,
+			BCScache["talents"].mage_fireblast,
+			BCScache["talents"].mage_scorch,
+			BCScache["talents"].mage_flamestrike,
+			BCScache["talents"].mage_shatter
+	elseif class == "PRIEST" then
+		if BCS.needScanTalents then
+			BCScache["talents"].priest_healing_spells = 0
+			BCScache["talents"].priest_offensive_spells = 0
+			BCScache["talents"].priest_smite = 0
+			BCScache["talents"].priest_holy_fire = 0
+			BCScache["talents"].priest_prayer = 0
+			-- scan talents
+			for tab=1, GetNumTalentTabs() do
+				for talent=1, GetNumTalents(tab) do
+					BCS_Tooltip:SetTalent(tab, talent)
+					for line=1, BCS_Tooltip:NumLines() do
+						local left = getglobal(BCS_Prefix .. "TextLeft" .. line)
+						if left:GetText() then
+							local name, iconTexture, tier, column, rank, maxRank, isExceptional, meetsPrereq = GetTalentInfo(tab, talent)
+							-- Holy Specialization
+							local _,_, value = strfind(left:GetText(), L["Increases the critical effect chance of your Holy spells by (%d+)%%."])
+							if value and rank > 0 then
+								BCScache["talents"].priest_healing_spells = BCScache["talents"].priest_healing_spells + tonumber(value)
+								BCScache["talents"].priest_smite = BCScache["talents"].priest_smite + tonumber(value)
+								BCScache["talents"].priest_holy_fire = BCScache["talents"].priest_holy_fire + tonumber(value)
+								break
+							end
+							-- Force of Will
+							_,_, value = strfind(left:GetText(), L["Increases your spell damage by %d+%% and the critical strike chance of your offensive spells by (%d)%%."])
+							if value and rank > 0 then
+								BCScache["talents"].priest_offensive_spells = BCScache["talents"].priest_offensive_spells + tonumber(value)
+								BCScache["talents"].priest_smite = BCScache["talents"].priest_smite + tonumber(value)
+								BCScache["talents"].priest_holy_fire = BCScache["talents"].priest_holy_fire + tonumber(value)
+								break
+							end
+						end
+					end
+				end
+			end
+		end
+		-- scan gear 
+		if BCS.needScanGear then
+			-- t1 set gives + 2 crit to holy and 25 to prayer of healing
+			BCScache["gear"].priest_healing_spells = 0
+			BCScache["gear"].priest_smite = 0
+			BCScache["gear"].priest_holy_fire = 0
+			BCScache["gear"].priest_prayer = 0
+			local Crit_Set_Bonus = {}
+			for slot=1, 19 do
+				if BCS_Tooltip:SetInventoryItem('player', slot) then
+					local _, _, eqItemLink = strfind(GetInventoryItemLink('player', slot), "(item:%d+:%d+:%d+:%d+)")
+					if eqItemLink then BCS_Tooltip:ClearLines() BCS_Tooltip:SetHyperlink(eqItemLink) end
+					local SET_NAME = nil
+					for line=1, BCS_Tooltip:NumLines() do
+						local left = getglobal(BCS_Prefix .. "TextLeft" .. line)
+						if left:GetText() then
+							local _,_, value = strfind(left:GetText(), "(.+) %(%d/%d%)")
+							if value then
+								SET_NAME = value
+							end
+							_, _, value = strfind(left:GetText(), L["^Set: Improves your chance to get a critical strike with Holy spells by (%d)%%."])
+							if value and SET_NAME and not tContains(Crit_Set_Bonus, SET_NAME) then
+								tinsert(Crit_Set_Bonus, SET_NAME)
+								BCScache["gear"].priest_healing_spells = BCScache["gear"].priest_healing_spells + tonumber(value)
+								BCScache["gear"].priest_smite = BCScache["gear"].priest_smite + tonumber(value)
+								BCScache["gear"].priest_holy_fire = BCScache["gear"].priest_holy_fire + tonumber(value)
+							end
+							_, _, value = strfind(left:GetText(), L["^Set: Increases your chance of a critical hit with Prayer of Healing by (%d+)%%."])
+							if value and SET_NAME and not tContains(Crit_Set_Bonus, SET_NAME) then
+								tinsert(Crit_Set_Bonus, SET_NAME)
+								BCScache["gear"].priest_prayer = BCScache["gear"].priest_prayer + tonumber(value)
+							end
+						end
+					end
+				end
+			end
+		end
+		local healingSpells, smite, holyFire, prayer
+
+		healingSpells = BCScache["talents"].priest_healing_spells + BCScache["gear"].priest_healing_spells
+		smite = BCScache["talents"].priest_smite + BCScache["gear"].priest_smite
+		holyFire = BCScache["talents"].priest_holy_fire + BCScache["gear"].priest_holy_fire
+		prayer = BCScache["talents"].priest_prayer + BCScache["gear"].priest_prayer
+
+		return healingSpells, prayer, BCScache["talents"].priest_offensive_spells, smite, holyFire, 0
+	elseif class == "SHAMAN" then
+		if BCS.needScanTalents then
+			BCScache["talents"].shaman_lightning_bolt = 0
+			BCScache["talents"].shaman_chain_lightning = 0
+			BCScache["talents"].shaman_lightning_shield = 0
+			BCScache["talents"].shaman_firefrost_spells = 0
+			BCScache["talents"].shaman_healing_spells = 0
+			-- scan talents
+			for tab=1, GetNumTalentTabs() do
+				for talent=1, GetNumTalents(tab) do
+					BCS_Tooltip:SetTalent(tab, talent)
+					for line=1, BCS_Tooltip:NumLines() do
+						local left = getglobal(BCS_Prefix .. "TextLeft" .. line)
+						if left:GetText() then
+							local name, iconTexture, tier, column, rank, maxRank, isExceptional, meetsPrereq = GetTalentInfo(tab, talent)
+							-- Call of Thunder
+							local _,_, value = strfind(left:GetText(), L["Increases the critical strike chance of your Lightning Bolt and Chain Lightning spells by an additional (%d+)%%."])
+							if value and rank > 0 then
+								BCScache["talents"].shaman_lightning_bolt = BCScache["talents"].shaman_lightning_bolt + tonumber(value)
+								BCScache["talents"].shaman_chain_lightning = BCScache["talents"].shaman_chain_lightning + tonumber(value)
+								break
+							end
+							-- Tidal Mastery
+							_,_, value = strfind(left:GetText(), L["Increases the critical effect chance of your healing and lightning spells by (%d+)%%."])
+							if value and rank > 0 then
+								BCScache["talents"].shaman_lightning_bolt = BCScache["talents"].shaman_lightning_bolt + tonumber(value)
+								BCScache["talents"].shaman_chain_lightning = BCScache["talents"].shaman_chain_lightning + tonumber(value)
+								BCScache["talents"].shaman_lightning_shield = BCScache["talents"].shaman_lightning_shield + tonumber(value)
+								BCScache["talents"].shaman_healing_spells = BCScache["talents"].shaman_healing_spells + tonumber(value)
+								break
+							end
+						end
+					end
+				end
+			end
+		end
+		-- buffs
+		if BCS.needScanAuras then
+			BCScache["auras"].shaman_lightning_bolt = 0
+			BCScache["auras"].shaman_chain_lightning = 0
+			BCScache["auras"].shaman_firefrost_spells = 0
+			local hasAura = BCS:GetPlayerAura("Elemental Mastery")
+			if hasAura then
+				BCScache["auras"].shaman_lightning_bolt = 100
+				BCScache["auras"].shaman_chain_lightning = 100
+				BCScache["auras"].shaman_firefrost_spells = 100
+			end
+		end
+		local lightningBolt = BCScache["auras"].shaman_lightning_bolt + BCScache["talents"].shaman_lightning_bolt
+		local chainLightning = BCScache["auras"].shaman_chain_lightning + BCScache["talents"].shaman_chain_lightning
+		return lightningBolt, chainLightning,
+			BCScache["talents"].shaman_lightning_shield,
+			BCScache["auras"].shaman_firefrost_spells,
+			BCScache["talents"].shaman_healing_spells, 0
+	else
+		return 0, 0, 0, 0, 0, 0
+	end
 end
 
 function BCS:GetSpellPower(school)
