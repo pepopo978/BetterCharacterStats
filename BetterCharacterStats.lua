@@ -229,10 +229,10 @@ function BCS:UpdateStats()
 
 	BCS:UpdatePaperdollStats("PlayerStatFrameLeft", IndexLeft)
 	BCS:UpdatePaperdollStats("PlayerStatFrameRight", IndexRight)
-	BCS.needScanGear = false
-	BCS.needScanTalents = false
-	BCS.needScanAuras = false
-	BCS.needScanSkills = false
+	BCS.needScanGear = true
+	BCS.needScanTalents = true
+	BCS.needScanAuras = true
+	BCS.needScanSkills = true
 	--[[local timeUsed = debugprofilestop()-beginTime
 	table.insert(avgV, timeUsed)
 	avg = 0

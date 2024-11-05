@@ -1395,9 +1395,12 @@ local ironClad = nil
 function BCS:GetHealingPower()
 	local healPower = 0;
 	local healPower_Set_Bonus = {}
+	BCScache["talents"].healing = 0
+	BCScache["gear"].healing = 0
+	BCScache["auras"].healing = 0
+
 	--talents
 	if BCS.needScanTalents then
-		BCScache["talents"].healing = 0
 		for tab=1, GetNumTalentTabs() do
 			for talent=1, GetNumTalents(tab) do
 				BCS_Tooltip:SetTalent(tab, talent)
@@ -1407,19 +1410,23 @@ function BCS:GetHealingPower()
 						local name, iconTexture, tier, column, rank, maxRank, isExceptional, meetsPrereq = GetTalentInfo(tab, talent)
 						-- Paladin
 						-- Ironclad
-						local _,_, value = strfind(left:GetText(), L["Increases your healing power by (%d+)%% of your Armor."])
+						local _,_,value = strfind(left:GetText(), L["Increases your healing power by (%d+)%% of your Armor."])
 						if value and rank > 0 then
 							ironClad = tonumber(value)
-							break
 						end
 					end
 				end
 			end
 		end
 	end
+
+	if ironClad ~= nil then
+		local base, effectiveArmor = UnitArmor("player")
+		BCScache["talents"].healing = BCScache["talents"].healing + floor(((ironClad / 100) * base))
+	end
+
+	--scan gear
 	if BCS.needScanGear then
-		BCScache["gear"].healing = 0
-		--scan gear
 		for slot=1, 19 do
 			if BCS_Tooltip:SetInventoryItem('player', slot) then
 				local _, _, eqItemLink = strfind(GetInventoryItemLink('player', slot), "(item:%d+:%d+:%d+:%d+)")
@@ -1474,7 +1481,6 @@ function BCS:GetHealingPower()
 	-- buffs
 	local treebonus = nil
 	if BCS.needScanAuras then
-		BCScache["auras"].healing = 0
 		local _, _, healPowerFromAura = BCS:GetPlayerAura(L["Healing done by magical spells is increased by up to (%d+)."])
 		if healPowerFromAura then
 			BCScache["auras"].healing = BCScache["auras"].healing + tonumber(healPowerFromAura)
@@ -1515,14 +1521,10 @@ function BCS:GetHealingPower()
 			BCScache["auras"].healing = BCScache["auras"].healing + tonumber(healPowerFromAura)
 		end
 	end
-	if ironClad ~= nil then
-		BCScache["talents"].healing = 0
-		local _, effectiveArmor = UnitArmor("player")
-		BCScache["talents"].healing = floor(((ironClad / 100) * effectiveArmor))
-	end
+	
 	healPower = BCScache["gear"].healing + BCScache["auras"].healing + BCScache["talents"].healing
 
-	return healPower, treebonus, talentbonus
+	return healPower, treebonus
 end
 
 local function GetRegenMPPerSpirit()
@@ -1554,9 +1556,15 @@ function BCS:GetManaRegen()
 	local casting = 0
 	local mp5 = 0
 	local mp5_Set_Bonus = {}
+	local waterShield = 0;
+	BCScache["auras"].casting = 0
+	BCScache["auras"].mp5 = 0
+	BCScache["gear"].mp5 = 0
+	BCScache["gear"].casting = 0
+	BCScache["talents"].casting = 0
+	
+
 	if BCS.needScanGear then
-		BCScache["gear"].mp5 = 0
-		BCScache["gear"].casting = 0
 		--scan gear
 		for slot=1, 19 do
 			if BCS_Tooltip:SetInventoryItem('player', slot) then
@@ -1619,10 +1627,38 @@ function BCS:GetManaRegen()
 		end
 	end
 
+	-- scan talents
+	local brilliance = nil
+	if BCS.needScanTalents then
+		for tab=1, GetNumTalentTabs() do
+			for talent=1, GetNumTalents(tab) do
+				BCS_Tooltip:SetTalent(tab, talent)
+				for line=1, BCS_Tooltip:NumLines() do
+					local left = getglobal(BCS_Prefix .. "TextLeft" .. line)
+					if left:GetText() then
+						local name, iconTexture, tier, column, rank, maxRank, isExceptional, meetsPrereq = GetTalentInfo(tab, talent)
+						-- Priest (Meditation) / Druid (Reflection) / Mage (Arcane Meditation) / Shaman (Improved Water Shield)
+						local _,_, value = strfind(left:GetText(), L["Allows (%d+)%% of your Mana regeneration to continue while casting."])
+						if value and rank > 0 then
+							BCScache["talents"].casting = BCScache["talents"].casting + tonumber(value)
+						end
+						-- Improved Water Shield Flag
+						if name == "Improved Water Shield" then
+							waterShield = rank;
+						end
+						-- Brilliance Aura (own)
+						if strfind(left:GetText(), "Brilliance Aura") and rank > 0 and BCS:GetPlayerAura("Brilliance Aura") then
+							brilliance = (base + (mp5 * 0.4)) * 0.15
+						end
+					end
+				end
+			end
+		end
+	end
+
 	-- buffs
 	if BCS.needScanAuras then
-		BCScache["auras"].casting = 0
-		BCScache["auras"].mp5 = 0
+		
 		-- improved Shadowform
 		for i = 1, MAX_SKILLLINE_TABS do
 			local name, texture, offset, numSpells = GetSpellTabInfo(i);
@@ -1678,36 +1714,24 @@ function BCS:GetManaRegen()
 		if castingFromAura then
 			BCScache["auras"].casting = BCScache["auras"].casting + tonumber(castingFromAura)
 		end
+
+		--Improved Water Shields
+		if(waterShield > 0 and BCS:GetPlayerAura("Water Shield")) then
+			local i, charges = 1,0;
+			while (UnitBuff("player", i)) do
+				local name,rank = UnitBuff("player", i)
+				if(string.sub(name, 17) == "Ability_Shaman_WaterShield") then
+					charges = rank
+				end
+				i = i + 1;
+			end
+			BCScache["auras"].casting = BCScache["auras"].casting + tonumber(charges*waterShield)
+		end
+
+
 	end
 
 	mp5 = BCScache["auras"].mp5 + BCScache["gear"].mp5
-
-	-- scan talents
-	local brilliance = nil
-	if BCS.needScanTalents then
-		BCScache["talents"].casting = 0
-		for tab=1, GetNumTalentTabs() do
-			for talent=1, GetNumTalents(tab) do
-				BCS_Tooltip:SetTalent(tab, talent)
-				for line=1, BCS_Tooltip:NumLines() do
-					local left = getglobal(BCS_Prefix .. "TextLeft" .. line)
-					if left:GetText() then
-						local name, iconTexture, tier, column, rank, maxRank, isExceptional, meetsPrereq = GetTalentInfo(tab, talent)
-						-- Priest (Meditation) / Druid (Reflection) / Mage (Arcane Meditation) / Shaman (Improved Water Shield)
-						local _,_, value = strfind(left:GetText(), L["Allows (%d+)%% of your Mana regeneration to continue while casting."])
-						if value and rank > 0 then
-							BCScache["talents"].casting = BCScache["talents"].casting + tonumber(value)
-							break
-						end
-						-- Brilliance Aura (own)
-						if strfind(left:GetText(), "Brilliance Aura") and rank > 0 and BCS:GetPlayerAura("Brilliance Aura") then
-							brilliance = (base + (mp5 * 0.4)) * 0.15
-						end
-					end
-				end
-			end
-		end
-	end
 
 	casting = BCScache["auras"].casting + BCScache["talents"].casting + BCScache["gear"].casting
 
