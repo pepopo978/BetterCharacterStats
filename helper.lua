@@ -1524,7 +1524,7 @@ function BCS:GetHealingPower()
 	
 	healPower = BCScache["gear"].healing + BCScache["auras"].healing + BCScache["talents"].healing
 
-	return healPower, treebonus
+	return healPower, treebonus, BCScache["talents"].healing
 end
 
 local function GetRegenMPPerSpirit()
