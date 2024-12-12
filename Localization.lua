@@ -150,7 +150,7 @@ BCS["L"] = {
 	Players and monsters can not block attacks from behind.]],
 
 	["TOTAL_AVOIDANCE_TOOLTIP"] = [[|cffffffffAvoidance|r]],
-	["TOTAL_AVOIDANCE_TOOLTIP_SUB"] = [[Your total chance to avoid enemy physical attacks.]],
+	["TOTAL_AVOIDANCE_TOOLTIP_SUB"] = [[Your total chance to avoid enemy physical attacks. Subtract 2.4 vs bosses.]],
 
 	--melee
 	["MELEE_HIT_TOOLTIP"] = [[|cffffffffMelee Hit|r]],

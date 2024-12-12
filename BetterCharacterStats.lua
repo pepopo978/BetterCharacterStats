@@ -4,6 +4,8 @@ BCSConfig = BCSConfig or {}
 local L, IndexLeft, IndexRight
 L = BCS.L
 
+local AceEvent = AceLibrary:HasInstance("AceEvent-2.0") and AceLibrary("AceEvent-2.0")
+
 -- Tree of Life aura bonus from other players, your own is calculated in GetHealingPower()
 local aura = .0
 
@@ -76,11 +78,21 @@ function BCS:OnLoad()
 	self.needUpdate = nil
 
 	self.Frame:RegisterEvent("ADDON_LOADED")
-	self.Frame:RegisterEvent("UNIT_INVENTORY_CHANGED") -- fires when equipment changes
 	self.Frame:RegisterEvent("CHARACTER_POINTS_CHANGED") -- fires when learning talent
 	self.Frame:RegisterEvent("PLAYER_AURAS_CHANGED") -- buffs/warrior stances
 	self.Frame:RegisterEvent("CHAT_MSG_SKILL") --gaining weapon skill
 	self.Frame:RegisterEvent("CHAT_MSG_ADDON") --needed to recieve aura bonuses from other people
+	AceEvent:RegisterBucketEvent("UNIT_INVENTORY_CHANGED", 0.3, function (args)
+		if args["player"] then
+			BCS.needScanGear = true
+			BCS.needScanSkills = true
+			if BCS.PaperDollFrame:IsVisible() then
+				BCS:UpdateStats()
+			else
+				BCS.needUpdate = true
+			end
+		end
+	end)
 end
 
 local function PostHookFunction(original,hook)
@@ -168,14 +180,6 @@ function BCS:OnEvent()
 			BCS.needUpdate = true
 		end
 	elseif event == "CHAT_MSG_SKILL" then
-		BCS.needScanSkills = true
-		if BCS.PaperDollFrame:IsVisible() then
-			BCS:UpdateStats()
-		else
-			BCS.needUpdate = true
-		end
-	elseif event == "UNIT_INVENTORY_CHANGED" and arg1 == "player" then
-		BCS.needScanGear = true
 		BCS.needScanSkills = true
 		if BCS.PaperDollFrame:IsVisible() then
 			BCS:UpdateStats()

@@ -1,8 +1,12 @@
 ## Interface: 11200
 ## Title: BetterCharacterStats
 ## Author: moh, Bennylava, |cffbe5effLexie|r, Spit, Pepopo
-## Version: 1.12.6
+## Version: 1.12.8
 ## SavedVariablesPerCharacter: BCSConfig bcsupdateavailable BCScache
 
+Libs\Ace2\AceLibrary\AceLibrary.lua
+Libs\Ace2\AceOO-2.0\AceOO-2.0.lua
+Libs\Ace2\AceEvent-2.0\AceEvent-2.0.lua
+Libs\ChatThrottleLib\ChatThrottleLib.lua
+
 BetterCharacterStats.xml
-ChatThrottleLib\ChatThrottleLib.lua
