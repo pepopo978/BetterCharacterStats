@@ -100,9 +100,10 @@ function BCS:GetPlayerAura(searchText, auraType)
 		-- Buffs
 		-- http://blue.cardplace.com/cache/wow-dungeons/624230.htm
 		-- 32 buffs max
-		local total = strfind(searchText, "%(%%d%+?%)") and 0 or nil
-		if total then
-			local s, e, amount
+		local _, numValues = gsub(searchText, "%(%%d%+?%)", "")
+		if numValues > 0 then
+			local total1, total2 = 0, 0
+			local s, e
 			for i = 0, 31 do
 				local index = GetPlayerBuff(i, "HELPFUL")
 				if index > -1 then
@@ -110,16 +111,22 @@ function BCS:GetPlayerAura(searchText, auraType)
 					for line = 1, BCS_Tooltip:NumLines() do
 						local text = _G[BCS_Prefix .. "TextLeft" .. line]:GetText()
 						if text then
-							s, e, amount = strfind(text, searchText)
+							local _s, _e, amount, amount2 = strfind(text, searchText)
 							if amount then
-								total = total + tonumber(amount)
+								total1 = total1 + tonumber(amount)
+								s, e = _s, _e
+							end
+							if amount2 then
+								total2 = total2 + tonumber(amount2)
+								s, e = _s, _e
 							end
 						end
 					end
 				end
 			end
-			total = total > 0 and total or nil
-			return s, e, total
+			total1 = total1 > 0 and total1 or nil
+			total2 = total2 > 0 and total2 or nil
+			return s, e, total1, total2
 		end
 		for i = 0, 31 do
 			local index = GetPlayerBuff(i, "HELPFUL")
@@ -810,7 +817,7 @@ function BCS:GetSpellCritChance()
 			BCScache["auras"].spell_crit = BCScache["auras"].spell_crit + tonumber(critFromAura)
 		end
 		-- Debuffs
-		_, _, _, critFromAura = BCS:GetPlayerAura(L["Spell critical-hit chance reduced by (%d+)%%."], "HARMFUL")
+		_, _, critFromAura = BCS:GetPlayerAura(L["Spell critical-hit chance reduced by (%d+)%%."], "HARMFUL")
 		if critFromAura then
 			BCScache["auras"].spell_crit = BCScache["auras"].spell_crit - tonumber(critFromAura)
 		end
