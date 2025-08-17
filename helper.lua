@@ -631,25 +631,6 @@ function BCS:GetRangedCritChance()
 		_, _, critFromAura = BCS:GetPlayerAura(L["Increases ranged and melee critical chance by (%d+)%%."])
 		if critFromAura then
 			BCScache["auras"].ranged_crit = BCScache["auras"].ranged_crit + tonumber(critFromAura)
-			-- Check if druid is shapeshifted and have Idol of the Moonfang equipped
-			for i = 1, GetNumPartyMembers() do
-				local _, partyClass = UnitClass("party"..i)
-				if partyClass == "DRUID" then
-					if BCS_Tooltip:SetInventoryItem("party"..i, 18) and UnitCreatureType("party"..i) == "Beast" then
-						for line = 1, BCS_Tooltip:NumLines() do
-							local left = _G[BCS_Prefix .. "TextLeft" .. line]
-							local text = left:GetText()
-							if text then
-								_, _, critFromAura = strfind(text, L["Equip: Increases the critical chance provided by Leader of the Pack and Moonkin Aura by (%d)%%."])
-								if critFromAura  then
-									BCScache["auras"].ranged_crit = BCScache["auras"].ranged_crit + tonumber(critFromAura)
-									break
-								end
-							end
-						end
-					end
-				end
-			end
 		end
 	end
 
@@ -748,44 +729,6 @@ function BCS:GetSpellCritChance()
 		local _, _, critFromAura = BCS:GetPlayerAura(L["Chance for a critical hit with a spell increased by (%d+)%%."])
 		if critFromAura then
 			BCScache["auras"].spell_crit = BCScache["auras"].spell_crit + tonumber(critFromAura)
-		end
-		if BCS:GetPlayerAura(L["Moonkin Aura"]) then
-			-- BCScache["auras"].spell_crit = BCScache["auras"].spell_crit + 3
-			if BCS:GetPlayerAura(L["Moonkin Form"]) and BCS_Tooltip:SetInventoryItem("player", 18) then
-				for line = 1, BCS_Tooltip:NumLines() do
-					local text = _G[BCS_Prefix .. "TextLeft" .. line]:GetText()
-					if text then
-						_, _, critFromAura = strfind(text, L["Equip: Increases the critical chance provided by Leader of the Pack and Moonkin Aura by (%d)%%."])
-						if critFromAura  then
-							BCScache["auras"].spell_crit = BCScache["auras"].spell_crit + tonumber(critFromAura)
-						end
-					end
-				end
-			else
-				-- Check if druid is shapeshifted and have Idol of the Moonfang equipped
-				for i = 1, GetNumPartyMembers() do
-					local _, partyClass = UnitClass("party"..i)
-					if partyClass == "DRUID" then
-						if BCS_Tooltip:SetInventoryItem("party"..i, 18) then
-							for line = 1, BCS_Tooltip:NumLines() do
-								local left = _G[BCS_Prefix .. "TextLeft" .. line]
-								local text = left:GetText()
-								if text then
-									_, _, critFromAura = strfind(text, L["Equip: Increases the critical chance provided by Leader of the Pack and Moonkin Aura by (%d)%%."])
-									if critFromAura  then
-										for buff = 1, 32 do
-											if UnitBuff("party"..i, buff) and UnitBuff("party"..i, buff) == "Interface\\Icons\\Spell_Nature_ForceOfNature" then
-												BCScache["auras"].spell_crit = BCScache["auras"].spell_crit + tonumber(critFromAura)
-												break
-											end
-										end
-									end
-								end
-							end
-						end
-					end
-				end
-			end
 		end
 		critFromAura = BCS:GetPlayerAura(L["Inner Focus"])
 		if critFromAura then
