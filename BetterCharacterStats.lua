@@ -469,11 +469,10 @@ function BCS:SetArmor(statFrame)
 end
 
 function BCS:GetMissChanceRaw(wepSkill)
-	local _, ver = pcall(GetBuildInfo)
 	local diff = wepSkill - 315
 	local miss = 5
 
-	if ver == "1.17.2" then
+	if TURTLE_WOW_VERSION ~= nil then
 		miss = miss - (diff * 0.2) - BCS:GetHitRating()
 	else
 		if diff < -10 then
@@ -505,8 +504,7 @@ function BCS:GetGlanceChance(wepSkill)
 end
 
 function BCS:GetGlanceReduction(wepSkill)
-	local _, ver = pcall(GetBuildInfo)
-	if ver == "1.17.2" then
+	if TURTLE_WOW_VERSION ~= nil then
 		return 65 + (wepSkill - 300) * 2
 	else
 		local diff = 315 - wepSkill;
