@@ -2271,6 +2271,11 @@ function BCS:GetSpellPen()
 						if value then
 							BCScache["gear"].spell_pen = BCScache["gear"].spell_pen + tonumber(value)
 						end
+						_, _, value = strfind(text, L["^%+(%d+) Spell Penetration"])
+						if value then
+							BCScache["gear"].spell_pen = BCScache["gear"].spell_pen + tonumber(value)
+						end
+
 						-- Set Bonuses
 						_, _, value = strfind(text, setPattern)
 						if value then
