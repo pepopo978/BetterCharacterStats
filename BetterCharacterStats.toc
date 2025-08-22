@@ -1,5 +1,5 @@
 ## Interface: 11200
-## Title: BetterCharacterStats 1.14.0
+## Title: BetterCharacterStats 1.14.1
 ## Author: moh, Bennylava, |cffbe5effLexie|r, Spit, Pepopo
 ## Version: 1.14.1
 ## Notes: Improved character statistics inside Character Info panel.
@@ -10,3 +10,4 @@ Libs\Ace2\AceOO-2.0\AceOO-2.0.lua
 Libs\Ace2\AceEvent-2.0\AceEvent-2.0.lua
 
 BetterCharacterStats.xml
+
