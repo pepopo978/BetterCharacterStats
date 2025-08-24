@@ -1808,6 +1808,11 @@ function BCS:GetManaRegen()
 			base = base + (base * (tonumber(value) / 100))
 			BCScache["auras"].casting = BCScache["auras"].casting + tonumber(castingFromAura)
 		end
+		-- Strider Presence
+		_, _, castingFromAura = BCS:GetPlayerAura(L["continue (%d+)%% of their Mana regeneration"])
+		if castingFromAura then
+			BCScache["auras"].casting = BCScache["auras"].casting + tonumber(castingFromAura)
+		end
 	end
 
 	casting = BCScache["auras"].casting + BCScache["talents"].casting + BCScache["gear"].casting

@@ -373,4 +373,6 @@ BCS["L"] = {
 
 
 	["^Equip: Improves your chance to hit with spells and attacks by (%d+)%%"] = "^Equip: Improves your chance to hit with spells and attacks by (%d+)%%",
+	
+	["continue (%d+)%% of their Mana regeneration"] = "continue (%d+)%% of their Mana regeneration",
 }
