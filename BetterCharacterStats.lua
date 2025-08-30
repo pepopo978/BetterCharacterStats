@@ -773,8 +773,15 @@ function BCS:SetSpellCritChance(statFrame)
 			end
 
 		elseif playerClass == "WARLOCK" then
-			if spell2 > 0 and spell2 ~= spell1 then
-				GameTooltip:AddLine(format(L.CRIT_SEARING, total2))
+			if spell3 > 0 and spell3 ~= spell1 then
+				GameTooltip:AddLine(format(L.CRIT_FIRE, total1 + spell3))
+				if spell2 > 0 and (total2 + spell3) ~= total3 then
+					GameTooltip:AddLine(format(L.CRIT_SEARING, total2 + spell3))
+				end
+			else
+				if spell2 > 0 and spell2 ~= spell1 then
+					GameTooltip:AddLine(format(L.CRIT_SEARING, total2))
+				end
 			end
 
 		elseif playerClass == "PRIEST" then -- all healing spells are holy, change tooltip if player have both talents

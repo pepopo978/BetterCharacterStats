@@ -648,7 +648,7 @@ function BCS:GetRangedCritChance()
 end
 
 function BCS:GetSpellCritChance()
-	local spellCrit = 0;
+	local spellCrit = 0
 	local _, intellect = UnitStat("player", 4)
 
 	-- values from vmangos core
@@ -898,8 +898,18 @@ function BCS:GetSpellCritFromClass(class)
 			end
 		end
 
+		if BCS.needScanAuras then
+			BCScache["auras"].warlock_fire_spells = 0
+			-- Buffs
+			-- Firestone
+			local _, _, value = BCS:GetPlayerAura(L["Increases critical strike chance of Fire spells by (%d+)%%"])
+			if value then
+				BCScache["auras"].warlock_fire_spells = BCScache["auras"].warlock_fire_spells + tonumber(value)
+			end
+		end
+
 		return BCScache["talents"].warlock_destruction_spells,
-				BCScache["talents"].warlock_searing_pain, 0, 0, 0, 0
+				BCScache["talents"].warlock_searing_pain, BCScache["auras"].warlock_fire_spells, 0, 0, 0
 
 	elseif class == "MAGE" then
 		if BCS.needScanTalents or BCS.needScanAuras then
@@ -1450,11 +1460,13 @@ function BCS:GetSpellPower(school)
 end
 
 local ironClad = nil
+local toughness = nil
 -- This is stuff that gives ONLY healing, we count stuff that gives both damage and healing in GetSpellPower
 function BCS:GetHealingPower()
-	local healPower = 0;
+	local healPower = 0
 	if BCS.needScanTalents then
 		ironClad = nil
+		toughness = nil
 		BCScache["talents"].healing = 0
 		-- Talents
 		for tab = 1, GetNumTalentTabs() do
@@ -1469,6 +1481,13 @@ function BCS:GetHealingPower()
 						local _, _, value = strfind(text, L["Increases your healing power by (%d+)%% of your Armor."])
 						if value and rank > 0 then
 							ironClad = tonumber(value)
+							break
+						end
+						-- Paladin
+						-- Toughness
+						_, _, value = strfind(text, L["Increases your armor value from items by (%d+)%%."])
+						if value and rank > 0 then
+							toughness = tonumber(value)
 							break
 						end
 					end
@@ -1594,6 +1613,10 @@ function BCS:GetHealingPower()
 		local base = UnitArmor("player")
 		local _, agility = UnitStat("player", 2)
 		local armorFromGear = base - (agility * 2)
+		-- Iron Clad is calculated on raw armor without toughness bonus, base armor includes the bonus
+		if toughness ~= nil then
+			armorFromGear = armorFromGear / (1 + toughness / 100)
+		end
 		BCScache["talents"].healing = floor(((ironClad / 100) * armorFromGear))
 	end
 	healPower = BCScache["gear"].healing + BCScache["auras"].healing + BCScache["talents"].healing
@@ -1733,9 +1756,9 @@ function BCS:GetManaRegen()
 		-- Buffs
 		-- Improved Shadowform
 		for tab = 1, GetNumSpellTabs() do
-			local _, _, offset, numSpells = GetSpellTabInfo(tab);
+			local _, _, offset, numSpells = GetSpellTabInfo(tab)
 			for s = offset + 1, offset + numSpells do
-				local spell = GetSpellName(s, BOOKTYPE_SPELL);
+				local spell = GetSpellName(s, BOOKTYPE_SPELL)
 				if spell == L["Improved Shadowform"] and BCS:GetPlayerAura(L["Shadowform"]) then
 					BCScache["auras"].casting = BCScache["auras"].casting + 15
 				end
@@ -1885,12 +1908,12 @@ function BCS:GetWeaponSkillForWeaponType(weaponType)
 end
 
 function BCS:GetItemTypeForSlot(slot)
-	local _, _, id = string.find(GetInventoryItemLink("player", GetInventorySlotInfo(slot)) or "", "(item:%d+:%d+:%d+:%d+)");
+	local _, _, id = string.find(GetInventoryItemLink("player", GetInventorySlotInfo(slot)) or "", "(item:%d+:%d+:%d+:%d+)")
 	if not id then
 		return
 	end
 
-	local _, _, _, _, _, itemType = GetItemInfo(id);
+	local _, _, _, _, _, itemType = GetItemInfo(id)
 
 	return itemType
 end
