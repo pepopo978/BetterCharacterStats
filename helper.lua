@@ -2101,8 +2101,8 @@ function BCS:GetHaste()
 						if value then
 							BCScache["gear"].haste = BCScache["gear"].haste + tonumber(value)
 						end
-						-- Arcanum of Rapidity (gives spell haste too on TWoW?)
-						_, _, value = strfind(text, L["^Attack speed %+(%d+)%%"])
+						-- Arcanum of Rapidity (gives spell haste too)
+						_, _, value = strfind(text, L["^Attack Speed %+(%d+)%%"])
 						if value then
 							BCScache["gear"].haste = BCScache["gear"].haste + tonumber(value)
 						end
