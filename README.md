@@ -14,7 +14,7 @@ This version is designed specifically for TurtleWoW and its custom changes.
 1. Click Code -> Download ZIP
 2. Extract ZIP file into your Interface/AddOnns folder, remove ``-main``
 3. Restart the game
-## Feedback
-If you find any bugs, inaccuracies, typos or just want to suggest something, open an [issue](https://github.com/Otari98/BetterCharacterStats/issues) on GitHub 
+ 
 ## Thanks to original author and all contributors
 Moh, Bennylava, Lexie, Spit, Pepopo
+

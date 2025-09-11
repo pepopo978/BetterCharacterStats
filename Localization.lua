@@ -140,7 +140,6 @@ BCS["L"] = {
 	["Increases the critical effect chance of your Holy Light and Flash of Light by (%d+)%%."] = "Increases the critical effect chance of your Holy Light and Flash of Light by (%d+)%%.",
 	["Improves your chance to get a critical strike with Holy Shock by (%d+)%%."] = "Improves your chance to get a critical strike with Holy Shock by (%d+)%%.",
 	["Increases your chance to hit with melee attacks and spells by (%d+)%%."] = "Increases your chance to hit with melee attacks and spells by (%d+)%%.",
-	
 	["Increases your armor value from items by (%d+)%%."] = "Increases your armor value from items by (%d+)%%.",
 	-- shaman
 	["Increases the critical strike chance of your Lightning Bolt and Chain Lightning spells by an additional (%d+)%%."] = "Increases the critical strike chance of your Lightning Bolt and Chain Lightning spells by an additional (%d+)%%.",
@@ -152,6 +151,7 @@ BCS["L"] = {
 	-- warlock
 	["Increases the critical strike chance of your Destruction spells by (%d+)%%."] = "Increases the critical strike chance of your Destruction spells by (%d+)%%.",
 	["Increases the critical strike chance of your Searing Pain spell by (%d+)%%."] = "Increases the critical strike chance of your Searing Pain spell by (%d+)%%.",
+	["Increases critical strike chance of Fire spells by (%d+)%%"] = "Increases critical strike chance of Fire spells by (%d+)%%",
 	["Reduces the chance for enemies to resist your Affliction spells by (%d+)%%."] = "Reduces the chance for enemies to resist your Affliction spells by (%d+)%%.",
     ["Firestone"] = "Firestone",
 
@@ -366,7 +366,7 @@ BCS["L"] = {
 	["^Equip: Increases your attack and casting speed by (%d+)%%"] = "^Equip: Increases your attack and casting speed by (%d+)%%",
 	["^Set: Increases your attack and casting speed by (%d+)%%"] = "^Set: Increases your attack and casting speed by (%d+)%%",
 	["^Equip: Increases your casting speed by (%d+)%%"] = "^Equip: Increases your casting speed by (%d+)%%",
-	["^Attack speed %+(%d+)%%"] = "^Attack speed %+(%d+)%%",
+	["^Attack Speed %+(%d+)%%"] = "^Attack Speed %+(%d+)%%",
 	["^%+(%d+)%% Haste"] = "^%+(%d+)%% Haste",
 	["Increases your total intellect by %d+%% and your spell casting speed by (%d+)%%"] = "Increases your total intellect by %d+%% and your spell casting speed by (%d+)%%",
 	["Zeal increases your attack and casting speed by an additional (%d+)%% per stack"] = "Zeal increases your attack and casting speed by an additional (%d+)%% per stack",
