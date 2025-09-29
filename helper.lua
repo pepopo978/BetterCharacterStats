@@ -1153,8 +1153,6 @@ function BCS:GetSpellPower(school)
 					end
 				end
 			end
-			BCScache["gear"][key] = spellPower
-			spellPower = BCScache["gear"][key]
 		end
 
 		if BCS.needScanAuras then
@@ -2333,3 +2331,4 @@ function BCS:GetHPRegen()
 	-- "Equip: Restores 16 health per 5 sec."
 	-- "Set: Restores 8 health per 5 sec."
 end
+
