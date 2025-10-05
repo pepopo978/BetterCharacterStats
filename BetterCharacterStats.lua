@@ -992,7 +992,6 @@ function BCS:SetSpellCritChance(statFrame)
 				else
 					GameTooltip:AddLine(format(L.CRIT_OFFENCE, total3))
 				end
-				GameTooltip:AddLine(format("Smite: %.2f%%", total4))
 			end
 			if spell4 > 0 then
 				GameTooltip:AddLine(format(L.CRIT_PRAYER, total4 + spell1))
