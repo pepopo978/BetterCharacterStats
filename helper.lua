@@ -2069,7 +2069,7 @@ function BCS:GetHaste()
 							break
 						end
 						-- Rogue (Blade Rush)
-						_, _, value = strfind(text, L["increases your melee attack speed by (%d+)%%"])
+						_, _, value = strfind(text, L["Increases your melee attack speed by (%d+)%%"])
 						if value and rank > 0 then
 							BCScache["talents"].haste = BCScache["talents"].haste + tonumber(value)
 							break
