@@ -1397,6 +1397,13 @@ function BCS:UpdatePaperdollStats(prefix, index)
 		BCS:SetHitRating(stat5, "RANGED")
 		BCS:SetRangedCritChance(stat6)
 	elseif (index == "PLAYERSTAT_SPELL_COMBAT") then
+		BCS:GetSpellPower("Arcane")
+		BCS:GetSpellPower("Fire")
+		BCS:GetSpellPower("Frost")
+		BCS:GetSpellPower("Holy")
+		BCS:GetSpellPower("Nature")
+		BCS:GetSpellPower("Shadow")
+
 		BCS:SetSpellPower(stat1)
 		BCS:SetHitRating(stat2, "SPELL")
 		BCS:SetSpellCritChance(stat3)
