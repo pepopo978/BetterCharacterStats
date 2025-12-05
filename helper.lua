@@ -2044,6 +2044,7 @@ end
 local vengefulStrikes
 function BCS:GetHaste()
 	if BCS.needScanTalents then
+		BCScache["talents"].haste = 0
 		BCScache["talents"].spell_haste = 0
 		vengefulStrikes = nil
 		-- Talents
@@ -2065,6 +2066,12 @@ function BCS:GetHaste()
 						_, _, value = strfind(text, L["Zeal increases your attack and casting speed by an additional (%d+)%% per stack"])
 						if value and rank > 0 then
 							vengefulStrikes = tonumber(value)
+							break
+						end
+						-- Rogue (Blade Rush)
+						_, _, value = strfind(text, L["increases your melee attack speed by (%d+)%%"])
+						if value and rank > 0 then
+							BCScache["talents"].haste = BCScache["talents"].haste + tonumber(value)
 							break
 						end
 					end
@@ -2183,7 +2190,8 @@ function BCS:GetHaste()
 
 	local _, race = UnitRace("player")
 	local haste = race == "NightElf" and 1 or 0
-	haste = haste + BCScache["gear"].haste + BCScache["auras"].haste
+
+	haste = haste + BCScache["gear"].haste + BCScache["auras"].haste + BCScache["talents"].haste
 	local spellHaste = BCScache["gear"].spell_haste + BCScache["auras"].spell_haste + BCScache["talents"].spell_haste
 
 	return haste, spellHaste
