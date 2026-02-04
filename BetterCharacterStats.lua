@@ -6,7 +6,9 @@ BCSConfig = BCSConfig or {}
 local L, IndexLeft, IndexRight
 L = BCS.L
 
-local AceEvent = AceLibrary:HasInstance("AceEvent-2.0") and AceLibrary("AceEvent-2.0")
+-- Inventory debounce: coalesces rapid equipment changes into a single scan
+local inventoryDebounceTimer = 0
+local inventoryDebouncePending = false
 
 -- Tree of Life aura bonus from other players, your own is calculated in GetHealingPower()
 local aura = .0
@@ -82,6 +84,23 @@ function BCS:OnLoad()
 	BCSFrame:RegisterEvent("CHAT_MSG_SKILL") -- gaining weapon skill
 	BCSFrame:RegisterEvent("CHAT_MSG_ADDON") -- needed to recieve aura bonuses from other people
 	BCS.needUpdate = false
+
+	-- OnUpdate for inventory debounce timer
+	BCSFrame:SetScript("OnUpdate", function()
+		if inventoryDebouncePending then
+			inventoryDebounceTimer = inventoryDebounceTimer - arg1
+			if inventoryDebounceTimer <= 0 then
+				inventoryDebouncePending = false
+				BCS.needScanGear = true
+				BCS.needScanSkills = true
+				if PaperDollFrame:IsVisible() then
+					BCS:UpdateStats()
+				else
+					BCS.needUpdate = true
+				end
+			end
+		end
+	end)
     -- there is less space for player character model with this addon, shorten it slightly
     CharacterModelFrame:SetHeight(CharacterModelFrame:GetHeight() - 19)
 end
@@ -155,13 +174,9 @@ function BCS:OnEvent()
 			BCS.needUpdate = true
 		end
 	elseif event == "UNIT_INVENTORY_CHANGED" and arg1 == "player" then
-		BCS.needScanGear = true
-		BCS.needScanSkills = true
-		if PaperDollFrame:IsVisible() then
-			BCS:UpdateStats()
-		else
-			BCS.needUpdate = true
-		end
+		-- Debounce: wait 200ms after last change before scanning
+		inventoryDebounceTimer = 0.2
+		inventoryDebouncePending = true
 	elseif event == "ADDON_LOADED" and arg1 == "BetterCharacterStats" then
 		BCSFrame:UnregisterEvent("ADDON_LOADED")
 
@@ -169,6 +184,7 @@ function BCS:OnEvent()
 		BCS.needScanTalents = true
 		BCS.needScanAuras = true
 		BCS.needScanSkills = true
+		BCS.needUpdate = true
 
 		IndexLeft = BCSConfig["DropdownLeft"] or BCS.PLAYERSTAT_DROPDOWN_OPTIONS[1]
 		IndexRight = BCSConfig["DropdownRight"] or BCS.PLAYERSTAT_DROPDOWN_OPTIONS[2]
@@ -179,6 +195,12 @@ function BCS:OnEvent()
 end
 
 function BCS:OnShow()
+	-- Clear pending debounce and update immediately when panel opens
+	if inventoryDebouncePending then
+		inventoryDebouncePending = false
+		BCS.needScanGear = true
+		BCS.needScanSkills = true
+	end
 	if BCS.needUpdate then
 		BCS.needUpdate = false
 		BCS:UpdateStats()
@@ -195,6 +217,9 @@ function BCS:UpdateStats()
 		BCS:Print("Update due to " .. e)
 		beginTime = debugprofilestop()
 	end
+
+	-- Run unified scans ONCE before updating stats
+	BCS:RunScans()
 
 	BCS:UpdatePaperdollStats("PlayerStatFrameLeft", IndexLeft)
 	BCS:UpdatePaperdollStats("PlayerStatFrameRight", IndexRight)
@@ -1397,13 +1422,7 @@ function BCS:UpdatePaperdollStats(prefix, index)
 		BCS:SetHitRating(stat5, "RANGED")
 		BCS:SetRangedCritChance(stat6)
 	elseif (index == "PLAYERSTAT_SPELL_COMBAT") then
-		BCS:GetSpellPower("Arcane")
-		BCS:GetSpellPower("Fire")
-		BCS:GetSpellPower("Frost")
-		BCS:GetSpellPower("Holy")
-		BCS:GetSpellPower("Nature")
-		BCS:GetSpellPower("Shadow")
-
+		-- School-specific spell power is already cached by ScanAllGear
 		BCS:SetSpellPower(stat1)
 		BCS:SetHitRating(stat2, "SPELL")
 		BCS:SetSpellCritChance(stat3)
@@ -1435,10 +1454,12 @@ function BCS:UpdatePaperdollStats(prefix, index)
 end
 
 local function PlayerStatFrameLeftDropDown_OnClick()
+	-- Set scan flags and run unified scans
 	BCS.needScanGear = true
 	BCS.needScanTalents = true
 	BCS.needScanAuras = true
 	BCS.needScanSkills = true
+	BCS:RunScans()
 
 	UIDropDownMenu_SetSelectedValue(_G[this.owner], this.value)
 	IndexLeft = this.value
@@ -1452,10 +1473,12 @@ local function PlayerStatFrameLeftDropDown_OnClick()
 end
 
 local function PlayerStatFrameRightDropDown_OnClick()
+	-- Set scan flags and run unified scans
 	BCS.needScanGear = true
 	BCS.needScanTalents = true
 	BCS.needScanAuras = true
 	BCS.needScanSkills = true
+	BCS:RunScans()
 
 	UIDropDownMenu_SetSelectedValue(_G[this.owner], this.value)
 	IndexRight = this.value
