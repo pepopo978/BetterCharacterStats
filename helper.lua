@@ -244,6 +244,9 @@ local function ScanAllGear()
 							_, _, value = strfind(text, L["^%+(%d+) Damage and Healing Spells"])
 							if value then cached.damage_and_healing = (cached.damage_and_healing or 0) + tonumber(value) end
 
+							_, _, value = strfind(text, L["^%+(%d+) Spell Power"])
+							if value then cached.damage_and_healing = (cached.damage_and_healing or 0) + tonumber(value) end
+
 							-- Atiesh (druid/priest) - damage only portion
 							_, _, value = strfind(text, L["Equip: Increases your spell damage by up to (%d+) and your healing by up to %d+."])
 							if value then cached.only_damage = (cached.only_damage or 0) + tonumber(value) end

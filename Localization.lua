@@ -38,6 +38,7 @@ BCS["L"] = {
 	["Spell damage is increased by up to (%d+)"] = "Spell damage is increased by up to (%d+)",
 	["Spell damage increased by up to (%d+)"] = "Spell damage increased by up to (%d+)",
 	["Spell Damage increased by (%d+)"] = "Spell Damage increased by (%d+)",
+	["^%+(%d+) Spell Power"] = "^%+(%d+) Spell Power",
 
 	["Arcane Damage %+(%d+)"] = "Arcane Damage %+(%d+)",
 	["Fire Damage %+(%d+)"] = "Fire Damage %+(%d+)",
