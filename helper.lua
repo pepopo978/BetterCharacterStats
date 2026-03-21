@@ -519,9 +519,9 @@ local function ScanAllTalents()
 	-- Scan all talents ONCE
 	for tab = 1, GetNumTalentTabs() do
 		for talent = 1, GetNumTalents(tab) do
-			BCS_Tooltip:SetTalent(tab, talent)
 			local _, _, _, _, rank = GetTalentInfo(tab, talent)
 			if rank and rank > 0 then
+				BCS_Tooltip:SetTalent(tab, talent)
 				for line = 1, BCS_Tooltip:NumLines() do
 					local text = _G[BCS_Prefix .. "TextLeft" .. line]:GetText()
 					if text then
@@ -631,7 +631,7 @@ local function ScanAllTalents()
 						if value then impInnerFire = tonumber(value) end
 
 						-- Paladin Ironclad
-						_, _, value = strfind(text, L["Increases your healing power by (%d+)%% of your Armor."])
+						_, _, value = strfind(text, L["Increases healing done by spells and effects by up to (%d+)%% of your Armor from items"])
 						if value then ironClad = tonumber(value) end
 
 						-- Paladin Toughness
