@@ -740,7 +740,7 @@ local function ScanAllTalents()
 						if value then impInnerFire = tonumber(value) end
 
 						-- Paladin Ironclad
-						_, _, value = strfind(text, L["Increases your healing power by (%d+)%% of your Armor."])
+						_, _, value = strfind(text, L["Increases healing done by spells and effects by up to (%d+)%% of your Armor from items."])
 						if value then ironClad = tonumber(value) end
 
 						-- Paladin Toughness
