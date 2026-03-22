@@ -61,6 +61,7 @@ BCS["L"] = {
 
 	["Equip: Restores (%d+) mana per 5 sec."] = "Equip: Restores (%d+) mana per 5 sec.",
 	["+(%d)%% Ranged Hit"] = "+(%d)%% Ranged Hit",
+	["+(%d)%% Ranged Crit"] = "+(%d)%% Ranged Crit",
 
 	-- Random Bonuses // https://wow.gamepedia.com/index.php?title=SuffixId&oldid=204406
 	["^%+(%d+) Damage and Healing Spells"] = "^%+(%d+) Damage and Healing Spells",

@@ -123,7 +123,7 @@ local function ScanAllGear()
 								if value then cached.ranged_hit = (cached.ranged_hit or 0) + tonumber(value) end
 							end
 
-							-- ===== CRIT =====
+							-- ===== RANGED CRIT =====
 							_, _, value = strfind(text, L["Equip: Improves your chance to get a critical strike by (%d)%%."])
 							if value then cached.ranged_crit = (cached.ranged_crit or 0) + tonumber(value) end
 
@@ -131,6 +131,9 @@ local function ScanAllGear()
 							if value then cached.ranged_crit = (cached.ranged_crit or 0) + tonumber(value) end
 
 							_, _, value = strfind(text, L["%+(%d+)%% Critical Strike"])
+							if value then cached.ranged_crit = (cached.ranged_crit or 0) + tonumber(value) end
+
+							_, _, value = strfind(text, L["+(%d)%% Ranged Crit"])
 							if value then cached.ranged_crit = (cached.ranged_crit or 0) + tonumber(value) end
 
 							-- ===== SPELL CRIT =====
