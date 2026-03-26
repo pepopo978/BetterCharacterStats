@@ -1,6 +1,8 @@
 BCS = BCS or {}
 
 BCS["L"] = {
+	SET_PATTERN = "(.+) %(%d/%d%)",
+
 	["%+(%d+)%% Critical Strike"] = "%+(%d+)%% Critical Strike",
 	["([%d.]+)%% chance to crit"] = "([%d.]+)%% chance to crit",
 
@@ -19,7 +21,7 @@ BCS["L"] = {
 	["Equip: Improves your chance to get a critical strike by (%d)%%."] = ITEM_SPELL_TRIGGER_ONEQUIP .. " Improves your chance to get a critical strike by (%d)%%.",
 	["Increases your chance to hit with melee weapons by (%d)%%."] = "Increases your chance to hit with melee weapons by (%d)%%.",
 	["Increases your critical strike chance with ranged weapons by (%d)%%."] = "Increases your critical strike chance with ranged weapons by (%d)%%.",
-	["Increases hit chance by (%d)%% and increases the chance movement impairing effects will be resisted by an additional %d+%%."] = "Increases hit chance by (%d)%% and increases the chance movement impairing effects will be resisted by an additional %d+%%.",
+	["Increases hit chance by (%d+)%%, and by an additional (%d+)%% while dual wielding"] = "Increases hit chance by (%d+)%%, and by an additional (%d+)%% while dual wielding",
 	["Increases your critical strike chance with all attacks by (%d)%%."] = "Increases your critical strike chance with all attacks by (%d)%%.",
 	["Increases spell damage and healing by up to (%d+)%% of your total Spirit."] = "Increases spell damage and healing by up to (%d+)%% of your total Spirit.",
 	["Allows (%d+)%% of your Mana regeneration to continue while casting."] = "Allows (%d+)%% of your Mana regeneration to continue while casting.",
@@ -33,6 +35,13 @@ BCS["L"] = {
 	["Equip: Increases damage done by Holy spells and effects by up to (%d+)."] = ITEM_SPELL_TRIGGER_ONEQUIP .. " Increases damage done by Holy spells and effects by up to (%d+).",
 	["Equip: Increases damage done by Nature spells and effects by up to (%d+)."] = ITEM_SPELL_TRIGGER_ONEQUIP .. " Increases damage done by Nature spells and effects by up to (%d+).",
 	["Equip: Increases damage done by Shadow spells and effects by up to (%d+)."] = ITEM_SPELL_TRIGGER_ONEQUIP .. " Increases damage done by Shadow spells and effects by up to (%d+).",
+
+	["^Set: Increases damage done by Arcane spells and effects by up to (%d+)"] = "^Set: Increases damage done by Arcane spells and effects by up to (%d+)",
+	["^Set: Increases damage done by Fire spells and effects by up to (%d+)"] = "^Set: Increases damage done by Fire spells and effects by up to (%d+)",
+	["^Set: Increases damage done by Frost spells and effects by up to (%d+)"] = "^Set: Increases damage done by Frost spells and effects by up to (%d+)",
+	["^Set: Increases damage done by Holy spells and effects by up to (%d+)"] = "^Set: Increases damage done by Holy spells and effects by up to (%d+)",
+	["^Set: Increases damage done by Nature spells and effects by up to (%d+)"] = "^Set: Increases damage done by Nature spells and effects by up to (%d+)",
+	["^Set: Increases damage done by Shadow spells and effects by up to (%d+)"] = "^Set: Increases damage done by Shadow spells and effects by up to (%d+)",
 
 	["Spell Damage %+(%d+)"] = "Spell Damage %+(%d+)",
 	["Spell damage is increased by up to (%d+)"] = "Spell damage is increased by up to (%d+)",
@@ -52,6 +61,7 @@ BCS["L"] = {
 
 	["Equip: Restores (%d+) mana per 5 sec."] = ITEM_SPELL_TRIGGER_ONEQUIP .. " Restores (%d+) mana per 5 sec.",
 	["+(%d)%% Ranged Hit"] = "+(%d)%% Ranged Hit",
+	["+(%d)%% Ranged Crit"] = "+(%d)%% Ranged Crit",
 
 	-- Random Bonuses // https://wow.gamepedia.com/index.php?title=SuffixId&oldid=204406
 	["^%+(%d+) Damage and Healing Spells"] = "^%+(%d+) Damage and Healing Spells",
@@ -125,6 +135,8 @@ BCS["L"] = {
 	["Critical strike chance with spells and melee attacks increased by (%d+)%%."] = "Critical strike chance with spells and melee attacks increased by (%d+)%%.",
 	["Increases ranged and melee critical chance by (%d+)%%."] = "Increases ranged and melee critical chance by (%d+)%%.",
 	["Equip: Increases the critical chance provided by Leader of the Pack and Moonkin Aura by (%d)%%."] = "Equip: Increases the critical chance provided by Leader of the Pack and Moonkin Aura by (%d)%%.",
+	["Your damage and healing done by magical spells and effects is increased by up to (%d+)"] = "Your damage and healing done by magical spells and effects is increased by up to (%d+)",
+	["Spell damage and healing increased by up to (%d+)"] = "Spell damage and healing increased by up to (%d+)",
 
 	-- druid
 	["Increases the damage and critical strike chance of your Moonfire spell by (%d+)%%."] = "Increases the damage and critical strike chance of your Moonfire spell by (%d+)%%.",
@@ -137,7 +149,7 @@ BCS["L"] = {
 	["Also increases chance to hit with melee attacks and spells by (%d+)%%."] = "Also increases chance to hit with melee attacks and spells by (%d+)%%.",
 
 	-- paladin
-	["Increases healing done by spells and effects by up to (%d+)%% of your Armor from items."] = "Increases healing done by spells and effects by up to (%d+)%% of your Armor from items.",
+	["Increases healing done by spells and effects by up to (%d+)%% of your Armor from items"] = "Increases healing done by spells and effects by up to (%d+)%% of your Armor from items",
 	["Increases the critical effect chance of your Holy Light and Flash of Light by (%d+)%%."] = "Increases the critical effect chance of your Holy Light and Flash of Light by (%d+)%%.",
 	["Improves your chance to get a critical strike with Holy Shock by (%d+)%%."] = "Improves your chance to get a critical strike with Holy Shock by (%d+)%%.",
 	["Increases your chance to hit with melee attacks and spells by (%d+)%%."] = "Increases your chance to hit with melee attacks and spells by (%d+)%%.",
@@ -254,7 +266,7 @@ BCS["L"] = {
 	MP5 Regen (2s): %d]],
 
 	SPELL_HASTE_TOOLTIP = "Spell Haste",
-	SPELL_HASTE_TOOLTIP_SUB = "Reduces cast time or your spells.",
+	SPELL_HASTE_TOOLTIP_SUB = "Reduces cast time of your spells.",
 
 	PLAYERSTAT_BASE_STATS = "Base Stats",
 	PLAYERSTAT_DEFENSES = "Defenses",
@@ -292,7 +304,7 @@ BCS["L"] = {
 	SPELL_SCHOOL_NATURE = "Nature",
 	SPELL_SCHOOL_SHADOW = "Shadow",
 
-	BLOCK_VALUE = "Block Value: ",
+	BLOCK_VALUE = "Block Value: %d",
 	IRONCLAD = "Healing power from Ironclad: %d",
 
 	HIT_FIRE = "Fire spells: %.f%%",
@@ -357,7 +369,8 @@ BCS["L"] = {
 	["amount of damage absorbed by your shield by (%d+)%%"] = "amount of damage absorbed by your shield by (%d+)%%",
 	["increases the amount blocked by (%d+)%%"] = "increases the amount blocked by (%d+)%%",
 	["increases block amount by (%d+)%%"] = "increases block amount by (%d+)%%",
-	["Block value increased by (%d+)."] = "Block value increased by (%d+).",
+	["Block value increased by (%d+)"] = "Block value increased by (%d+)",
+	["Block Value increased by (%d+)"] = "Block Value increased by (%d+)",
 	["^Stoneskin$"] = "^Stoneskin$",
 
 	["to all party members"] = "to all party members",
@@ -380,6 +393,7 @@ BCS["L"] = {
 	["^Casting speed increased by (%d+)%%"] = "^Casting speed increased by (%d+)%%",
 	["^Attack and casting speed increased by (%d+)%%"] = "^Attack and casting speed increased by (%d+)%%",
 	["^Increases your attack and casting speed by (%d+)%%"] = "^Increases your attack and casting speed by (%d+)%%", -- spell:28145
+	["Increases your melee attack speed by (%d+)%%"] = "Increases your melee attack speed by (%d+)%%",
 
 	-- Armor penetration
 	["^Equip: Your attacks ignore (%d+) of the target's armor"] = "^Equip: Your attacks ignore (%d+) of the target's armor",
@@ -397,6 +411,5 @@ BCS["L"] = {
 
 
 	["^Equip: Improves your chance to hit with spells and attacks by (%d+)%%"] = "^Equip: Improves your chance to hit with spells and attacks by (%d+)%%",
-	
 	["continue (%d+)%% of their Mana regeneration"] = "continue (%d+)%% of their Mana regeneration",
 }

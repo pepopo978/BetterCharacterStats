@@ -7,7 +7,7 @@ local BCS_Prefix = "BetterCharacterStatsTooltip"
 BCS_Tooltip:SetOwner(WorldFrame, "ANCHOR_NONE")
 
 local L = BCS["L"]
-local setPattern = "(.+) %(%d/%d%)"
+local setPattern = L.SET_PATTERN
 local strfind = strfind
 local tonumber = tonumber
 local _, playerClass = UnitClass("player")
@@ -22,82 +22,18 @@ local function twipe(table)
 end
 
 local BCScache = {
-	["gear"] = {
-		damage_and_healing = 0,
-		only_damage = 0,
-		arcane = 0,
-		fire = 0,
-		frost = 0,
-		holy = 0,
-		nature = 0,
-		shadow = 0,
-		healing = 0,
-		mp5 = 0,
-		casting = 0,
-		spell_hit = 0,
-		spell_crit = 0,
-		hit = 0,
-		ranged_hit = 0,
-		ranged_crit = 0,
-		haste = 0,
-		spell_haste = 0,
-		armor_pen = 0,
-		spell_pen = 0,
-		-- class specific
-		priest_holy_spells = 0,
-		priest_prayer = 0
-	},
-	["talents"] = {
-		damage_and_healing = 0,
-		healing = 0,
-		spell_hit = 0,
-		spell_hit_fire = 0,
-		spell_hit_frost = 0,
-		spell_hit_arcane = 0,
-		spell_hit_shadow = 0,
-		spell_hit_holy = 0,
-		spell_crit = 0,
-		casting = 0,
-		mp5 = 0,
-		hit = 0,
-		ranged_hit = 0,
-		ranged_crit = 0,
-		haste = 0,
-		spell_haste = 0,
-		armor_pen = 0,
-		-- Block-related talent modifiers
-		block_mod = 0,
-		enhancing_totems = 0,
-		-- class specific stored in separate tables
-	},
-	["auras"] = {
-		damage_and_healing = 0,
-		only_damage = 0,
-		arcane = 0,
-		fire = 0,
-		frost = 0,
-		holy = 0,
-		nature = 0,
-		shadow = 0,
-		healing = 0,
-		mp5 = 0,
-		casting = 0,
-		spell_hit = 0,
-		spell_crit = 0,
-		hit = 0,
-		ranged_hit = 0,
-		ranged_crit = 0,
-		hit_debuff = 0,
-		haste = 0,
-		spell_haste = 0,
-		armor_pen = 0
-	},
-	["skills"] = {
-		mh = 0,
-		oh = 0,
-		ranged = 0
-	}
+	["gear"] = {},
+	["talents"] = {},
+	["auras"] = {},
+	["skills"] = {}
 }
+
+local defaultToZero = { __index = function(t, k) return 0 end }
+
+setmetatable(BCScache["auras"], defaultToZero)
+setmetatable(BCScache["gear"], defaultToZero)
+setmetatable(BCScache["talents"], defaultToZero)
+setmetatable(BCScache["skills"], defaultToZero)
 
 local SetBonus = {
 	hit = {},
@@ -113,6 +49,19 @@ local SetBonus = {
 	spell_pen = {},
 }
 
+-- Talent cache variables (class-specific)
+local TalentCache = {}
+setmetatable(TalentCache, defaultToZero)
+local impInnerFire = nil
+local spiritualGuidance = nil
+local ironClad = nil
+local toughness = nil
+local waterShield = nil
+local vengefulStrikes = nil
+local masterOfArms = nil
+local surefooted = nil
+local enhancingTotems = nil
+
 -- Item-level cache: stores parsed stats by full item link to avoid re-parsing unchanged items
 local ItemCache = {}
 -- Track currently equipped item links by slot
@@ -121,28 +70,7 @@ local EquippedItems = {}
 -- Unified gear scanning: parses all equipment ONCE and extracts ALL stats
 local function ScanAllGear()
 	-- Reset all gear cache values
-	BCScache["gear"].damage_and_healing = 0
-	BCScache["gear"].only_damage = 0
-	BCScache["gear"].arcane = 0
-	BCScache["gear"].fire = 0
-	BCScache["gear"].frost = 0
-	BCScache["gear"].holy = 0
-	BCScache["gear"].nature = 0
-	BCScache["gear"].shadow = 0
-	BCScache["gear"].healing = 0
-	BCScache["gear"].mp5 = 0
-	BCScache["gear"].casting = 0
-	BCScache["gear"].spell_hit = 0
-	BCScache["gear"].spell_crit = 0
-	BCScache["gear"].hit = 0
-	BCScache["gear"].ranged_hit = 0
-	BCScache["gear"].ranged_crit = 0
-	BCScache["gear"].haste = 0
-	BCScache["gear"].spell_haste = 0
-	BCScache["gear"].armor_pen = 0
-	BCScache["gear"].spell_pen = 0
-	BCScache["gear"].priest_holy_spells = 0
-	BCScache["gear"].priest_prayer = 0
+	for k in pairs(BCScache["gear"]) do BCScache["gear"][k] = 0 end
 
 	-- Reset set bonuses
 	twipe(SetBonus.hit)
@@ -163,19 +91,15 @@ local function ScanAllGear()
 		if itemLink then
 			-- Check cache using full item link (avoids strfind on cache hit)
 			local cached = ItemCache[itemLink]
-			if not cached then
+			-- if not cached then
 				-- Extract item link for SetHyperlink only when not cached
 				local _, _, eqItemLink = strfind(itemLink, "(item:%d+:%d+:%d+:%d+)")
-				if not eqItemLink then
-					-- Invalid link, skip this slot
-					EquippedItems[slot] = nil
-				else
+				if eqItemLink then
 					-- Parse the item and cache it
 					cached = {}
 					BCS_Tooltip:ClearLines()
 					BCS_Tooltip:SetHyperlink(eqItemLink)
 
-					local setName
 					for line = 1, BCS_Tooltip:NumLines() do
 						local text = _G[BCS_Prefix .. "TextLeft" .. line]:GetText()
 						if text then
@@ -214,7 +138,7 @@ local function ScanAllGear()
 								if value then cached.ranged_hit = (cached.ranged_hit or 0) + tonumber(value) end
 							end
 
-							-- ===== CRIT =====
+							-- ===== RANGED CRIT =====
 							_, _, value = strfind(text, L["Equip: Improves your chance to get a critical strike by (%d)%%."])
 							if value then cached.ranged_crit = (cached.ranged_crit or 0) + tonumber(value) end
 
@@ -222,6 +146,9 @@ local function ScanAllGear()
 							if value then cached.ranged_crit = (cached.ranged_crit or 0) + tonumber(value) end
 
 							_, _, value = strfind(text, L["%+(%d+)%% Critical Strike"])
+							if value then cached.ranged_crit = (cached.ranged_crit or 0) + tonumber(value) end
+
+							_, _, value = strfind(text, L["+(%d)%% Ranged Crit"])
 							if value then cached.ranged_crit = (cached.ranged_crit or 0) + tonumber(value) end
 
 							-- ===== SPELL CRIT =====
@@ -457,7 +384,7 @@ local function ScanAllGear()
 					end
 					ItemCache[itemLink] = cached
 				end
-			end
+			-- end
 
 			if cached then
 				-- Add cached values to totals
@@ -578,40 +505,17 @@ local function ScanAllGear()
 				end
 			end
 		end
+		-- Hunter gets more hit with Surefooted when dual wielding
+		if surefooted and OffhandHasWeapon() then
+			BCScache["gear"].hit = BCScache["gear"].hit + tonumber(surefooted)
+		end
 	end
 end
-
--- Talent cache variables (class-specific)
-local TalentCache = {}
-local impInnerFire = nil
-local spiritualGuidance = nil
-local ironClad = nil
-local toughness = nil
-local waterShield = nil
-local vengefulStrikes = nil
-local masterOfArms = nil
-local enhancingTotems = nil
 
 -- Unified talent scanning
 local function ScanAllTalents()
 	-- Reset talent cache values
-	BCScache["talents"].hit = 0
-	BCScache["talents"].spell_hit = 0
-	BCScache["talents"].spell_hit_fire = 0
-	BCScache["talents"].spell_hit_frost = 0
-	BCScache["talents"].spell_hit_arcane = 0
-	BCScache["talents"].spell_hit_shadow = 0
-	BCScache["talents"].spell_hit_holy = 0
-	BCScache["talents"].ranged_crit = 0
-	BCScache["talents"].spell_crit = 0
-	BCScache["talents"].damage_and_healing = 0
-	BCScache["talents"].healing = 0
-	BCScache["talents"].casting = 0
-	BCScache["talents"].haste = 0
-	BCScache["talents"].spell_haste = 0
-	BCScache["talents"].armor_pen = 0
-	BCScache["talents"].block_mod = 0
-	BCScache["talents"].enhancing_totems = 0
+	for k in pairs(BCScache["talents"]) do BCScache["talents"][k] = 0 end
 
 	-- Reset class-specific talent variables
 	impInnerFire = nil
@@ -621,6 +525,7 @@ local function ScanAllTalents()
 	waterShield = nil
 	vengefulStrikes = nil
 	masterOfArms = nil
+	surefooted = nil
 	enhancingTotems = nil
 
 	-- Reset class-specific talent caches
@@ -629,13 +534,14 @@ local function ScanAllTalents()
 	-- Scan all talents ONCE
 	for tab = 1, GetNumTalentTabs() do
 		for talent = 1, GetNumTalents(tab) do
-			BCS_Tooltip:SetTalent(tab, talent)
 			local _, _, _, _, rank = GetTalentInfo(tab, talent)
 			if rank and rank > 0 then
+				BCS_Tooltip:SetTalent(tab, talent)
 				for line = 1, BCS_Tooltip:NumLines() do
 					local text = _G[BCS_Prefix .. "TextLeft" .. line]:GetText()
 					if text then
-						local _, _, value
+						if text == TOOLTIP_TALENT_NEXT_RANK then break end
+						local _, _, value, value1
 
 						-- ===== MELEE HIT =====
 						-- Rogue
@@ -643,8 +549,11 @@ local function ScanAllTalents()
 						if value then BCScache["talents"].hit = BCScache["talents"].hit + tonumber(value) end
 
 						-- Hunter
-						_, _, value = strfind(text, L["Increases hit chance by (%d)%% and increases the chance movement impairing effects will be resisted by an additional %d+%%."])
-						if value then BCScache["talents"].hit = BCScache["talents"].hit + tonumber(value) end
+						_, _, value, value1 = strfind(text, L["Increases hit chance by (%d+)%%, and by an additional (%d+)%% while dual wielding"])
+						if value then
+							BCScache["talents"].hit = BCScache["talents"].hit + tonumber(value)
+							surefooted = tonumber(value1)
+						end
 
 						-- Druid Natural Weapons / Paladin Precision
 						_, _, value = strfind(text, L["Also increases chance to hit with melee attacks and spells by (%d+)%%."])
@@ -740,7 +649,7 @@ local function ScanAllTalents()
 						if value then impInnerFire = tonumber(value) end
 
 						-- Paladin Ironclad
-						_, _, value = strfind(text, L["Increases healing done by spells and effects by up to (%d+)%% of your Armor from items."])
+						_, _, value = strfind(text, L["Increases healing done by spells and effects by up to (%d+)%% of your Armor from items"])
 						if value then ironClad = tonumber(value) end
 
 						-- Paladin Toughness
@@ -768,82 +677,82 @@ local function ScanAllTalents()
 							-- Holy Power
 							_, _, value = strfind(text, L["Increases the critical effect chance of your Holy Light and Flash of Light by (%d+)%%."])
 							if value then
-								TalentCache.paladin_holy_light = (TalentCache.paladin_holy_light or 0) + tonumber(value)
-								TalentCache.paladin_flash = (TalentCache.paladin_flash or 0) + tonumber(value)
+								TalentCache.paladin_holy_light = TalentCache.paladin_holy_light + tonumber(value)
+								TalentCache.paladin_flash = TalentCache.paladin_flash + tonumber(value)
 							end
 							-- Divine Favor
 							_, _, value = strfind(text, L["Improves your chance to get a critical strike with Holy Shock by (%d+)%%."])
-							if value then TalentCache.paladin_shock = (TalentCache.paladin_shock or 0) + tonumber(value) end
+							if value then TalentCache.paladin_shock = TalentCache.paladin_shock + tonumber(value) end
 
 						elseif playerClass == "DRUID" then
 							-- Improved Moonfire
 							_, _, value = strfind(text, L["Increases the damage and critical strike chance of your Moonfire spell by (%d+)%%."])
-							if value then TalentCache.druid_moonfire = (TalentCache.druid_moonfire or 0) + tonumber(value) end
+							if value then TalentCache.druid_moonfire = TalentCache.druid_moonfire + tonumber(value) end
 							-- Improved Regrowth
 							_, _, value = strfind(text, L["Increases the critical effect chance of your Regrowth spell by (%d+)%%."])
-							if value then TalentCache.druid_regrowth = (TalentCache.druid_regrowth or 0) + tonumber(value) end
+							if value then TalentCache.druid_regrowth = TalentCache.druid_regrowth + tonumber(value) end
 
 						elseif playerClass == "WARLOCK" then
 							-- Devastation
 							_, _, value = strfind(text, L["Increases the critical strike chance of your Destruction spells by (%d+)%%."])
 							if value then
-								TalentCache.warlock_destruction_spells = (TalentCache.warlock_destruction_spells or 0) + tonumber(value)
-								TalentCache.warlock_searing_pain = (TalentCache.warlock_searing_pain or 0) + tonumber(value)
+								TalentCache.warlock_destruction_spells = TalentCache.warlock_destruction_spells + tonumber(value)
+								TalentCache.warlock_searing_pain = TalentCache.warlock_searing_pain + tonumber(value)
 							end
 							-- Improved Searing Pain
 							_, _, value = strfind(text, L["Increases the critical strike chance of your Searing Pain spell by (%d+)%%."])
-							if value then TalentCache.warlock_searing_pain = (TalentCache.warlock_searing_pain or 0) + tonumber(value) end
+							if value then TalentCache.warlock_searing_pain = TalentCache.warlock_searing_pain + tonumber(value) end
 
 						elseif playerClass == "MAGE" then
 							-- Arcane Impact
 							_, _, value = strfind(text, L["Increases the critical strike chance of your Arcane Explosion and Arcane Missiles spells by an additional (%d+)%%."])
-							if value then TalentCache.mage_arcane_spells = (TalentCache.mage_arcane_spells or 0) + tonumber(value) end
+							if value then TalentCache.mage_arcane_spells = TalentCache.mage_arcane_spells + tonumber(value) end
 							-- Incinerate
 							_, _, value = strfind(text, L["Increases the critical strike chance of your Fire Blast and Scorch spells by (%d+)%%."])
 							if value then
-								TalentCache.mage_fireblast = (TalentCache.mage_fireblast or 0) + tonumber(value)
-								TalentCache.mage_scorch = (TalentCache.mage_scorch or 0) + tonumber(value)
+								TalentCache.mage_fireblast = TalentCache.mage_fireblast + tonumber(value)
+								TalentCache.mage_scorch = TalentCache.mage_scorch + tonumber(value)
 							end
 							-- Improved Flamestrike
 							_, _, value = strfind(text, L["Increases the critical strike chance of your Flamestrike spell by (%d+)%%."])
-							if value then TalentCache.mage_flamestrike = (TalentCache.mage_flamestrike or 0) + tonumber(value) end
+							if value then TalentCache.mage_flamestrike = TalentCache.mage_flamestrike + tonumber(value) end
 							-- Critical Mass
 							_, _, value = strfind(text, L["Increases the critical strike chance of your Fire spells by (%d+)%%."])
 							if value then
-								TalentCache.mage_fire_spells = (TalentCache.mage_fire_spells or 0) + tonumber(value)
-								TalentCache.mage_fireblast = (TalentCache.mage_fireblast or 0) + tonumber(value)
-								TalentCache.mage_flamestrike = (TalentCache.mage_flamestrike or 0) + tonumber(value)
-								TalentCache.mage_scorch = (TalentCache.mage_scorch or 0) + tonumber(value)
+								TalentCache.mage_fire_spells = TalentCache.mage_fire_spells + tonumber(value)
+								TalentCache.mage_fireblast = TalentCache.mage_fireblast + tonumber(value)
+								TalentCache.mage_flamestrike = TalentCache.mage_flamestrike + tonumber(value)
+								TalentCache.mage_scorch = TalentCache.mage_scorch + tonumber(value)
 							end
 							-- Shatter
 							_, _, value = strfind(text, L["Increases the critical strike chance of all your spells against frozen targets by (%d+)%%."])
-							if value then TalentCache.mage_shatter = (TalentCache.mage_shatter or 0) + tonumber(value) end
+							if value then TalentCache.mage_shatter = TalentCache.mage_shatter + tonumber(value) end
 
 						elseif playerClass == "PRIEST" then
 							-- Divinity
 							_, _, value = strfind(text, L["Increases the critical effect chance of your Holy and Discipline spells by (%d+)%%."])
 							if value then
-								TalentCache.priest_holy_spells = (TalentCache.priest_holy_spells or 0) + tonumber(value)
-								TalentCache.priest_discipline_spells = (TalentCache.priest_discipline_spells or 0) + tonumber(value)
+								TalentCache.priest_holy_spells = TalentCache.priest_holy_spells + tonumber(value)
+								TalentCache.priest_discipline_spells = TalentCache.priest_discipline_spells + tonumber(value)
 							end
 							-- Force of Will
 							_, _, value = strfind(text, L["Increases your spell damage and the critical strike chance of your offensive spells by (%d+)%%"])
-							if value then TalentCache.priest_offensive_spells = (TalentCache.priest_offensive_spells or 0) + tonumber(value) end
+							if value then TalentCache.priest_offensive_spells = TalentCache.priest_offensive_spells + tonumber(value) end
 
 						elseif playerClass == "SHAMAN" then
 							-- Call of Thunder
 							_, _, value = strfind(text, L["Increases the critical strike chance of your Lightning Bolt and Chain Lightning spells by an additional (%d+)%%."])
 							if value then
-								TalentCache.shaman_lightning_bolt = (TalentCache.shaman_lightning_bolt or 0) + tonumber(value)
-								TalentCache.shaman_chain_lightning = (TalentCache.shaman_chain_lightning or 0) + tonumber(value)
+								TalentCache.shaman_lightning_bolt = TalentCache.shaman_lightning_bolt + tonumber(value)
+								TalentCache.shaman_chain_lightning = TalentCache.shaman_chain_lightning + tonumber(value)
 							end
 							-- Tidal Mastery
 							_, _, value = strfind(text, L["Increases the critical effect chance of your healing and lightning spells by (%d+)%%."])
 							if value then
-								TalentCache.shaman_lightning_bolt = (TalentCache.shaman_lightning_bolt or 0) + tonumber(value)
-								TalentCache.shaman_chain_lightning = (TalentCache.shaman_chain_lightning or 0) + tonumber(value)
-								TalentCache.shaman_lightning_shield = (TalentCache.shaman_lightning_shield or 0) + tonumber(value)
-								TalentCache.shaman_healing_spells = (TalentCache.shaman_healing_spells or 0) + tonumber(value)
+								TalentCache.shaman_lightning_bolt = TalentCache.shaman_lightning_bolt + tonumber(value)
+								TalentCache.shaman_chain_lightning = TalentCache.shaman_chain_lightning + tonumber(value)
+								TalentCache.shaman_lightning_shield = TalentCache.shaman_lightning_shield + tonumber(value)
+								TalentCache.shaman_healing_spells = TalentCache.shaman_healing_spells + tonumber(value)
 							end
 						end
 					end
@@ -942,6 +851,12 @@ local function ParseBuffText(text)
 	if value then result.only_damage = (result.only_damage or 0) + tonumber(value); found = true end
 
 	_, _, value = strfind(text, L["Increases damage and healing done by magical spells and effects by up to (%d+)%."])
+	if value then result.damage_and_healing = (result.damage_and_healing or 0) + tonumber(value); found = true end
+
+	_, _, value = strfind(text, L["Your damage and healing done by magical spells and effects is increased by up to (%d+)"])
+	if value then result.damage_and_healing = (result.damage_and_healing or 0) + tonumber(value); found = true end
+
+	_, _, value = strfind(text, L["Spell damage and healing increased by up to (%d+)"])
 	if value then result.damage_and_healing = (result.damage_and_healing or 0) + tonumber(value); found = true end
 
 	_, _, value = strfind(text, L["Magical damage dealt by spells and abilities is increased by up to (%d+)"])
@@ -1154,20 +1069,20 @@ local function ApplyBuffStats(stats, count)
 		BCScache["auras"].haste = BCScache["auras"].haste + value
 	end
 
-	-- Class-specific TalentCache updates (multiplied by count)
+	-- Class-specific updates (multiplied by count)
 	if stats.warlock_fire_spells then
-		TalentCache.warlock_fire_spells = (TalentCache.warlock_fire_spells or 0) + stats.warlock_fire_spells * count
+		BCScache["auras"].warlock_fire_spells = BCScache["auras"].warlock_fire_spells + stats.warlock_fire_spells * count
 	end
 	if stats.mage_fire_spells then
-		TalentCache.mage_fire_spells = (TalentCache.mage_fire_spells or 0) + stats.mage_fire_spells * count
-		TalentCache.mage_fireblast = (TalentCache.mage_fireblast or 0) + stats.mage_fire_spells * count
-		TalentCache.mage_flamestrike = (TalentCache.mage_flamestrike or 0) + stats.mage_fire_spells * count
-		TalentCache.mage_scorch = (TalentCache.mage_scorch or 0) + stats.mage_fire_spells * count
+		BCScache["auras"].mage_fire_spells = BCScache["auras"].mage_fire_spells + stats.mage_fire_spells * count
+		BCScache["auras"].mage_fireblast = BCScache["auras"].mage_fireblast + stats.mage_fire_spells * count
+		BCScache["auras"].mage_flamestrike = BCScache["auras"].mage_flamestrike + stats.mage_fire_spells * count
+		BCScache["auras"].mage_scorch = BCScache["auras"].mage_scorch + stats.mage_fire_spells * count
 	end
 	if stats.shaman_elemental_mastery then
-		TalentCache.shaman_lightning_bolt = 100
-		TalentCache.shaman_chain_lightning = 100
-		TalentCache.shaman_firefrost_spells = 100
+		BCScache["auras"].shaman_lightning_bolt = 100
+		BCScache["auras"].shaman_chain_lightning = 100
+		BCScache["auras"].shaman_firefrost_spells = 100
 	end
 end
 
@@ -1184,25 +1099,7 @@ end
 -- Unified aura scanning
 local function ScanAllAuras()
 	-- Reset aura cache values
-	BCScache["auras"].hit = 0
-	BCScache["auras"].hit_debuff = 0
-	BCScache["auras"].spell_hit = 0
-	BCScache["auras"].ranged_crit = 0
-	BCScache["auras"].spell_crit = 0
-	BCScache["auras"].damage_and_healing = 0
-	BCScache["auras"].only_damage = 0
-	BCScache["auras"].arcane = 0
-	BCScache["auras"].fire = 0
-	BCScache["auras"].frost = 0
-	BCScache["auras"].holy = 0
-	BCScache["auras"].nature = 0
-	BCScache["auras"].shadow = 0
-	BCScache["auras"].healing = 0
-	BCScache["auras"].mp5 = 0
-	BCScache["auras"].casting = 0
-	BCScache["auras"].haste = 0
-	BCScache["auras"].spell_haste = 0
-	BCScache["auras"].armor_pen = 0
+	for k in pairs(BCScache["auras"]) do BCScache["auras"][k] = 0 end
 
 	-- Reset aura text cache
 	twipe(AuraCache.buffs)
@@ -1306,6 +1203,9 @@ function BCS:RunScans()
 	end
 	if BCS.needScanTalents then
 		ScanAllTalents()
+	end
+	if BCS.needScanGear then
+		ScanAllGear()
 	end
 	if BCS.needScanAuras then
 		ScanAllAuras()
@@ -1575,41 +1475,46 @@ function BCS:GetSpellCritFromClass(class)
 	end
 
 	if class == "PALADIN" then
-		return TalentCache.paladin_holy_light or 0,
-			TalentCache.paladin_flash or 0,
-			TalentCache.paladin_shock or 0, 0, 0, 0
+		return TalentCache.paladin_holy_light,
+			TalentCache.paladin_flash,
+			TalentCache.paladin_shock, 0, 0, 0
 
 	elseif class == "DRUID" then
-		return TalentCache.druid_moonfire or 0,
-			TalentCache.druid_regrowth or 0, 0, 0, 0, 0
-
+		return TalentCache.druid_moonfire,
+			TalentCache.druid_regrowth, 0, 0, 0, 0
 	elseif class == "WARLOCK" then
-		return TalentCache.warlock_destruction_spells or 0,
-			TalentCache.warlock_searing_pain or 0,
-			TalentCache.warlock_fire_spells or 0, 0, 0, 0
+		local fireSpells = BCScache["auras"].warlock_fire_spells + TalentCache.warlock_fire_spells
+		return TalentCache.warlock_destruction_spells,
+			TalentCache.warlock_searing_pain,
+			fireSpells, 0, 0, 0
 
 	elseif class == "MAGE" then
-		return TalentCache.mage_arcane_spells or 0,
-			TalentCache.mage_fire_spells or 0,
-			TalentCache.mage_fireblast or 0,
-			TalentCache.mage_scorch or 0,
-			TalentCache.mage_flamestrike or 0,
-			TalentCache.mage_shatter or 0
+		local fireSpells = BCScache["auras"].mage_fire_spells + TalentCache.mage_fire_spells
+		local fireBlast = BCScache["auras"].mage_fireblast + TalentCache.mage_fireblast
+		local scorch = BCScache["auras"].mage_scorch + TalentCache.mage_scorch
+		local flamestrike = BCScache["auras"].mage_flamestrike + TalentCache.mage_flamestrike
+		return TalentCache.mage_arcane_spells,
+			fireSpells,
+			fireBlast,
+			scorch,
+			flamestrike,
+			TalentCache.mage_shatter
 
 	elseif class == "PRIEST" then
-		local holySpells = (TalentCache.priest_holy_spells or 0) + BCScache["gear"].priest_holy_spells
+		local holySpells = TalentCache.priest_holy_spells + BCScache["gear"].priest_holy_spells
 		return holySpells,
-			TalentCache.priest_discipline_spells or 0,
-			TalentCache.priest_offensive_spells or 0,
+			TalentCache.priest_discipline_spells,
+			TalentCache.priest_offensive_spells,
 			BCScache["gear"].priest_prayer, 0, 0
 
 	elseif class == "SHAMAN" then
-		local lightningBolt = (TalentCache.shaman_lightning_bolt or 0)
-		local chainLightning = (TalentCache.shaman_chain_lightning or 0)
+		local lightningBolt = BCScache["auras"].shaman_lightning_bolt + TalentCache.shaman_lightning_bolt
+		local chainLightning = BCScache["auras"].shaman_chain_lightning + TalentCache.shaman_chain_lightning
+		local fireFrost = BCScache["auras"].shaman_firefrost_spells + TalentCache.shaman_firefrost_spells
 		return lightningBolt, chainLightning,
-			TalentCache.shaman_lightning_shield or 0,
-			TalentCache.shaman_firefrost_spells or 0,
-			TalentCache.shaman_healing_spells or 0, 0
+			TalentCache.shaman_lightning_shield,
+			fireFrost,
+			TalentCache.shaman_healing_spells, 0
 
 	else
 		return 0, 0, 0, 0, 0, 0
@@ -1620,7 +1525,7 @@ function BCS:GetSpellPower(school)
 	-- All scanning now done by ScanAllGear/ScanAllTalents/ScanAllAuras
 	if school then
 		local key = strlower(school)
-		return (BCScache["gear"][key] or 0) + (BCScache["auras"][key] or 0)
+		return BCScache["gear"][key] + BCScache["auras"][key]
 	else
 		-- Calculate talent bonus from spirit if applicable
 		local talentDamageAndHealing = 0
@@ -1878,7 +1783,7 @@ function BCS:GetBlockValue()
 
 	-- Buffs
 	--Glyph of Deflection
-	local _, _, value = BCS:GetPlayerAura(L["Block value increased by (%d+)."])
+	local _, _, value = BCS:GetPlayerAura(L["Block value increased by (%d+)"])
 	if value then
 		blockValue = blockValue + tonumber(value)
 	end
