@@ -49,6 +49,18 @@ local SetBonus = {
 	spell_pen = {},
 }
 
+-- Talent cache variables (class-specific)
+local TalentCache = {}
+setmetatable(TalentCache, defaultToZero)
+local impInnerFire = nil
+local spiritualGuidance = nil
+local ironClad = nil
+local toughness = nil
+local waterShield = nil
+local vengefulStrikes = nil
+local masterOfArms = nil
+local surefooted = nil
+
 -- Item-level cache: stores parsed stats by full item link to avoid re-parsing unchanged items
 local ItemCache = {}
 
@@ -486,20 +498,12 @@ local function ScanAllGear()
 				end
 			end
 		end
+		-- Hunter gets more hit with Surefooted when dual wielding
+		if surefooted and OffhandHasWeapon() then
+			BCScache["gear"].hit = BCScache["gear"].hit + tonumber(surefooted)
+		end
 	end
 end
-
--- Talent cache variables (class-specific)
-local TalentCache = {}
-setmetatable(TalentCache, defaultToZero)
-local impInnerFire = nil
-local spiritualGuidance = nil
-local ironClad = nil
-local toughness = nil
-local waterShield = nil
-local vengefulStrikes = nil
-local masterOfArms = nil
-local enhancingTotems = nil
 
 -- Unified talent scanning
 local function ScanAllTalents()
@@ -514,7 +518,7 @@ local function ScanAllTalents()
 	waterShield = nil
 	vengefulStrikes = nil
 	masterOfArms = nil
-	enhancingTotems = nil
+	surefooted = nil
 
 	-- Reset class-specific talent caches
 	twipe(TalentCache)
@@ -529,7 +533,7 @@ local function ScanAllTalents()
 					local text = _G[BCS_Prefix .. "TextLeft" .. line]:GetText()
 					if text then
 						if text == TOOLTIP_TALENT_NEXT_RANK then break end
-						local _, _, value
+						local _, _, value, value1
 
 						-- ===== MELEE HIT =====
 						-- Rogue
@@ -537,8 +541,11 @@ local function ScanAllTalents()
 						if value then BCScache["talents"].hit = BCScache["talents"].hit + tonumber(value) end
 
 						-- Hunter
-						_, _, value = strfind(text, L["Increases hit chance by (%d)%% and increases the chance movement impairing effects will be resisted by an additional %d+%%."])
-						if value then BCScache["talents"].hit = BCScache["talents"].hit + tonumber(value) end
+						_, _, value, value1 = strfind(text, L["Increases hit chance by (%d+)%%, and by an additional (%d+)%% while dual wielding"])
+						if value then
+							BCScache["talents"].hit = BCScache["talents"].hit + tonumber(value)
+							surefooted = tonumber(value1)
+						end
 
 						-- Druid Natural Weapons / Paladin Precision
 						_, _, value = strfind(text, L["Also increases chance to hit with melee attacks and spells by (%d+)%%."])
@@ -644,7 +651,6 @@ local function ScanAllTalents()
 						-- Shaman Enhancing Totems
 						_, _, value = strfind(text, L["increases block amount by (%d+)%%"])
 						if value then
-							enhancingTotems = tonumber(value)
 							BCScache["talents"].enhancing_totems = tonumber(value)
 						end
 
@@ -1183,11 +1189,11 @@ end
 
 -- Run all scans based on dirty flags
 function BCS:RunScans()
-	if BCS.needScanGear then
-		ScanAllGear()
-	end
 	if BCS.needScanTalents then
 		ScanAllTalents()
+	end
+	if BCS.needScanGear then
+		ScanAllGear()
 	end
 	if BCS.needScanAuras then
 		ScanAllAuras()
